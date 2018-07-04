@@ -82,7 +82,7 @@ if( $data -> code == 0 ){
     $parentPost = $posts -> $parent;
 
     // 父评邮箱号存在
-    if( isset($parentPost) ){
+    if( isset($parentPost) && SMTP_ENABLE ){
 
         $fields = (object) array(
             'parent' => $parent,
