@@ -28,11 +28,11 @@
 define('DISQUS_PUBKEY', 'E8Uh5l5fHZ6gD8U3KycjAIAk46f68Zw7C6eW8WSjZvCLXebZ7p0r1yrYDrLilk2F');
 define('PUBLIC_KEY', '');
 define('SECRET_KEY', '');
-define('DISQUS_USERNAME', '');
-define('DISQUS_EMAIL', '');
+define('DISQUS_USERNAME', 'fanhaobai');
+define('DISQUS_EMAIL', 'fanhaobai@gmail.com');
 define('DISQUS_PASSWORD', '');
-define('DISQUS_WEBSITE', '');
-define('DISQUS_SHORTNAME', '');
+define('DISQUS_WEBSITE', 'https://www.fanhaobai.com');
+define('DISQUS_SHORTNAME', 'fanhaobai');
 define('DISQUS_APPROVED', true);
 
 /*
@@ -61,6 +61,7 @@ define('EMOJI_PATH', 'https://assets-cdn.github.com/images/icons/emoji/unicode/'
  *
  */
 
+define('SMTP_ENABLE', false);
 define('SMTP_SECURE', 'ssl');
 define('SMTP_HOST', '');
 define('SMTP_PORT', 465);
