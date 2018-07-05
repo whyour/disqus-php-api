@@ -15,7 +15,7 @@ require_once('emoji.php');
 error_reporting(E_ERROR | E_PARSE);
 header('Content-type:text/json');
 header('Access-Control-Allow-Credentials: true');
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';  
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 $ipRegex = '((2[0-4]|1\d|[1-9])?\d|25[0-5])(\.(?1)){3}';
 function domain($url){
     preg_match('/[a-z0-9\-]{1,63}\.[a-z\.]{2,6}$/', parse_url($url, PHP_URL_HOST), $_domain_tld);
@@ -144,7 +144,7 @@ function getAccessToken($fields){
     $payload['iat'] = $_SERVER['REQUEST_TIME'];
     $payload['exp'] = $expires;
 
-    setcookie('access_token', $jwt -> encode($payload, DISQUS_PASSWORD), $expires, substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT'])), $_SERVER['HTTP_HOST'], false, true); 
+    setcookie('access_token', $jwt -> encode($payload, DISQUS_PASSWORD), $expires, substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT'])), $_SERVER['HTTP_HOST'], false, true);
 
     return $access_token;
 }
@@ -162,7 +162,7 @@ function encodeURIComponent($str){
 }
 
 function fields_format($fields){
-    foreach($fields as $key=>$value) { 
+    foreach($fields as $key=>$value) {
         if (is_array($value)) {
             foreach( $value as $item ){
                 $fields_string .= encodeURIComponent($key).'='.encodeURIComponent($item).'&';
@@ -192,7 +192,7 @@ function curl_get($url, $fields){
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_FOLLOWLOCATION => 1,
         CURLOPT_HEADER => 0,
-        CURLOPT_RETURNTRANSFER => 1 
+        CURLOPT_RETURNTRANSFER => 1
     );
 
     $curl = curl_init();
@@ -297,7 +297,7 @@ function post_format( $post ){
     $post -> author -> url = !!$post -> author -> url ? $post -> author -> url : $post -> author -> profileUrl;
 
     $urlPat = '/<a.*?href="(.*?[disq\.us][disqus\.com][disquscdn\.com][media.giphy\.com].*?)".*?>(.*?)<\/a>/mi';
-    preg_match_all($urlPat, $post -> message, $urlArr);    
+    preg_match_all($urlPat, $post -> message, $urlArr);
     if( count($urlArr[0]) > 0 ){
         $linkArr = array();
         foreach ( $urlArr[1] as $item => $urlItem){
@@ -305,7 +305,7 @@ function post_format( $post ){
             if(preg_match('/^(http|https):\/\/disq\.us/i', $urlItem)){
                 parse_str(parse_url($urlItem,PHP_URL_QUERY),$out);
                 $linkArr[$item] = '<a href="'.join(':', explode(':',$out['url'],-1)).'" target="_blank" title="'.$urlArr[2][$item].'">'.$urlArr[2][$item].'</a>';
-            // 去掉图片链接
+                // 去掉图片链接
             } elseif ( preg_match('/^(http|https):\/\/.*(disquscdn.com|media.giphy.com).*\.(jpg|gif|png)$/i', $urlItem) ){
                 $linkArr[$item] = '';
             } elseif ( strpos($urlItem, 'https://disqus.com/by/') !== false ){
@@ -319,7 +319,7 @@ function post_format( $post ){
 
     $imgArr = array();
     foreach ( $post -> media as $key => $image ){
-        
+
         $imgArr[$key] = (object) array(
             'thumbUrl' => $image -> thumbnailUrl,
             'thumbWidth' => $image -> thumbnailWidth,
@@ -343,7 +343,7 @@ function post_format( $post ){
         $isMod = '';
     }
 
-    $data = array( 
+    $data = array(
         'avatar' => $post -> author -> avatar -> cache,
         'isMod' => $isMod,
         'isDeleted' => $post -> isDeleted,
@@ -383,8 +383,54 @@ function getForumData(){
     }
 }
 
+function updateThreadData($thread){
+
+    global $cache;
+
+    try {
+        $fields = (object) array(
+            'forum' => DISQUS_SHORTNAME,
+            'thread' => $thread
+        );
+
+        $curl_url = '/api/3.0/threads/details.json?';
+        $detail = curl_get($curl_url, $fields);
+
+        $id = md5($thread);
+        $data = array();
+        if($detail -> code == 0){
+            $data[$id] = array(
+                'id' => $detail -> response -> id,
+                'slug' => $detail -> response -> slug,
+                'posts' => $detail -> response -> posts,
+                'expires' => time() + 3600*6
+            );
+
+            $cache -> update($data,'threads');
+
+            return (object)$data[$id];
+        }
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+function getThreadDataByCache($thread){
+
+    global $cache;
+
+    $threads = $cache -> get('threads');
+
+    $id = md5($thread);
+    if(isset($threads -> $id) && time() < $threads -> $id -> expires){
+        return $threads -> $id;
+    }
+
+    return updateThreadData($thread);
+}
+
 // 取得当前目录
-function getCurrentDir (){
+function getCurrentDir(){
 
     $isSecure = false;
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
@@ -397,6 +443,18 @@ function getCurrentDir (){
 
     return $protocol.$_SERVER['HTTP_HOST'].substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT']));
 
+}
+
+// 评论无限极分类
+function getComments($data, $pid = 0, &$result = array()){
+    foreach ($data as $key => $val) {
+        if ($pid == $val['parent']) {
+            $result[] = $val;
+            getComments($data, $val['id'], $result);
+        }
+    }
+
+    return $result;
 }
 
 if( time() > strtotime($cache -> get('cookie') -> expires) || !$cache -> get('cookie') ){

@@ -21,6 +21,7 @@ $author_email = $_POST['email'];
 $author_url = $_POST['url'] == '' || $_POST['url'] == 'null' ? null : $_POST['url'];
 $thread = $_POST['thread'];
 $parent = $_POST['parent'];
+$identifier = $_POST['identifier'];
 
 // 存在父评，即回复
 if(!empty($parent)){
@@ -79,11 +80,10 @@ if( $data -> code == 0 ){
     $id = $data -> response -> id;
     $createdAt = $data -> response ->createdAt;
     $posts = $cache -> get('posts');
-    $parentPost = $posts -> $parent;
 
     // 父评邮箱号存在
-    if( isset($parentPost) && SMTP_ENABLE ){
-
+    if( isset($posts -> $parent) && SMTP_ENABLE ){
+        $parentPost = $posts -> $parent;
         $fields = (object) array(
             'parent' => $parent,
             'parentEmail' => $parentPost -> email,
@@ -123,7 +123,6 @@ if( $data -> code == 0 ){
         );
         $cache -> update($posts, 'posts');
     }
-
 } else {
 
     $output = $data;
@@ -131,3 +130,6 @@ if( $data -> code == 0 ){
 }
 
 print_r(json_encode($output));
+
+fastcgi_finish_request();
+updateThreadData("ident:$identifier");

@@ -34,13 +34,7 @@ if( $data -> code == 2 ){
 
 }
 
-$fields = (object) array(
-    'forum' => DISQUS_SHORTNAME,
-    'thread' => $thread
-);
-
-$curl_url = '/api/3.0/threads/details.json?';
-$detail = curl_get($curl_url, $fields);
+$detail = getThreadDataByCache($thread);
 
 $posts = array();
 if (is_array($data -> response) || is_object($data -> response)){
@@ -49,15 +43,16 @@ if (is_array($data -> response) || is_object($data -> response)){
     }
 }
 
-$data -> cursor -> total = $detail -> response -> posts;
+$posts = getComments($posts, 0);
+$data -> cursor -> total = $detail -> posts;
 
 $output = $data -> code == 0 ? (object) array(
     'code' => 0,
     'cursor' => $data -> cursor,
     'forum' => $cache -> get('forum'),
-    'link' => 'https://disqus.com/home/discussion/'.DISQUS_SHORTNAME.'/'.$detail -> response -> slug.'/?l=zh',
+    'link' => 'https://disqus.com/home/discussion/'.DISQUS_SHORTNAME.'/'.$detail -> slug.'/?l=zh',
     'response' => $posts,
-    'thread' => $detail -> response -> id
+    'thread' => $detail -> id
 ) : $data;
 
 print_r(json_encode($output));
