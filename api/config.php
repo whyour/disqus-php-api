@@ -61,6 +61,7 @@ define('EMOJI_PATH', 'https://assets-cdn.github.com/images/icons/emoji/unicode/'
  *
  */
 
+define('SMTP_ENABLE', false);
 define('SMTP_SECURE', 'ssl');
 define('SMTP_HOST', '');
 define('SMTP_PORT', 465);
