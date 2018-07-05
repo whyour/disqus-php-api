@@ -367,7 +367,7 @@ function getForumData(){
     $fields = (object) array(
         'forum' => DISQUS_SHORTNAME
     );
-    $curl_url = '/api/3.0/forums/details.json?';
+    $curl_url = '/api/3.0/forums/details.j son?';
     $data = curl_get($curl_url, $fields);
     $modText = $data -> response -> moderatorBadgeText;
     $forum = array(
@@ -381,6 +381,18 @@ function getForumData(){
     if( $data -> code == 0 ){
         $cache -> update($forum,'forum');
     }
+}
+
+// 评论无限极分类
+function getComments($data, $pid = 0, &$result = array()){
+    foreach ($data as $key => $val) {
+        if ($pid == $val['parent']) {
+            $result[] = $val;
+            getComments($data, $val['id'], $result);
+        }
+    }
+
+    return $result;
 }
 
 // 取得当前目录

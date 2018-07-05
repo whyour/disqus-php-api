@@ -48,6 +48,7 @@ if (is_array($data -> response) || is_object($data -> response)){
         $posts[$key] = post_format($post);
     }
 }
+$posts = getComments($posts, 0);
 
 $data -> cursor -> total = $detail -> response -> posts;
 
