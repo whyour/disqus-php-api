@@ -23,7 +23,7 @@ $fields = (object) array(
     'thread' => $thread
 );
 
-$curl_url = '/api/3.0/threads/listPosts?';
+$curl_url = '/api/3.0/threads/listPostsThreaded?';
 $data = curl_get($curl_url, $fields);
 
 if( $data -> code == 2 ){
@@ -43,7 +43,6 @@ if (is_array($data -> response) || is_object($data -> response)){
     }
 }
 
-$posts = getComments($posts, 0);
 $data -> cursor -> total = $detail -> posts;
 
 $output = $data -> code == 0 ? (object) array(
