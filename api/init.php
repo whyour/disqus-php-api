@@ -397,7 +397,7 @@ function updateThreadData($thread){
         $detail = curl_get($curl_url, $fields);
 
         $id = md5($thread);
-        $data = array();
+        $data = (array)$cache -> get('threads');
         if($detail -> code == 0){
             $data[$id] = array(
                 'id' => $detail -> response -> id,
