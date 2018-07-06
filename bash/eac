@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+
+<?php
+# 生成esc.json
+$file = __DIR__ . '/../dist/eac.json';
+require_once(__DIR__ . '/../api/init.php');
+file_put_contents($file, json_encode($emoji -> eac()));
+echo 'success!', PHP_EOL;
