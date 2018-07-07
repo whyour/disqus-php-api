@@ -1,7 +1,7 @@
 <?php
 /**
  * 获取评论列表
- * 暂以 15 条每页，倒序为准
+ * 暂以 50 条每页，倒序为准
  *
  * @param link   页面链接
  * @param cursor 当前评论位置
@@ -18,7 +18,7 @@ $thread = 'ident:'.$_GET['ident'];
 $fields = (object) array(
     'forum' => DISQUS_SHORTNAME,
     'cursor' => $_GET['cursor'],
-    'limit' => 15,
+    'limit' => 50,
     'order' => 'desc',
     'thread' => $thread
 );
