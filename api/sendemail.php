@@ -1,71 +1,86 @@
 <?php
 /**
  * 发送电子邮件
- *
- * @param parent       被回复评论 ID
- * @param parentEmail  被回复评论者邮箱
- * @param id           该评论 ID
- *
- * @author   fooleap <fooleap@gmail.com>
- * @version  2018-06-13 21:54:29
- * @link     https://github.com/fooleap/disqus-php-api
- *
  */
+
 date_default_timezone_set("Asia/Shanghai");
 require_once('init.php');
-
-// 获取被回复人信息
-$curl_url = '/api/3.0/posts/details.json?';
-$fields = (object) array(
-    'post' => $_POST['parent'],
-    'related' => 'thread'
-);
-$data = curl_get($curl_url, $fields);
-$post = post_format($data->response);
-$parent_email   = $_POST['parentEmail']; //被回复邮箱
-$thread = $data->response->thread;
-$parent_link = $data->response->url;
-$parent_name    = $post['name']; //被回复人名
-$parent_message = $post['message']; //被回复留言
-
-// 获取回复信息
-$fields = (object) array(
-    'post' => $_POST['id']
-);
-$data = curl_get($curl_url, $fields);
-$post = post_format($data->response);
-$reply_name    = $post['name']; //回复者人名
-$reply_message = $post['message']; //回复者留言
-$forum_name = $cache -> get('forum') -> name;
-
-$content = '<p>' . $parent_name . '，您在<a target="_blank" href="'.$website.'">「'. $forum_name .'」</a>的评论：</p>';
-$content .= $parent_message;
-$content .= '<p>' . $reply_name . ' 的回复如下：</p>';
-$content .= $reply_message;
-$content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$parent_link. '">'. $thread -> clean_title . '</a></p>';
+require_once('PHPMailer/class.phpmailer.php');
+require_once('PHPMailer/class.smtp.php');
 
 use PHPMailer;
 
-// 发送邮件
-require_once('PHPMailer/class.phpmailer.php');
-require_once('PHPMailer/class.smtp.php');
-$mail          = new PHPMailer();
-$mail->CharSet = "UTF-8"; 
-$mail->IsSMTP();
-$mail->SMTPAuth   = true;
-$mail->SMTPSecure = SMTP_SECURE;
-$mail->Host       = SMTP_HOST;
-$mail->Port       = SMTP_PORT;
-$mail->Username   = SMTP_USERNAME;
-$mail->Password   = SMTP_PASSWORD;
-$mail->Subject = '您在「' . $forum_name . '」的评论有了新回复';
-$mail->MsgHTML($content);
-$mail->AddAddress($parent_email, $parent_name);
-$from = defined('SMTP_FROM') ? SMTP_FROM : SMTP_USERNAME;
-$from_name = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forum_name;
-$mail->SetFrom($from, $from_name);
-if(!$mail->Send()) {
-    echo "发送失败：" . $mail->ErrorInfo;
-} else {
-    echo "恭喜，邮件发送成功！";
+function send($parentEmail, $post, $parentPost, $postUrl){
+    global $cache;
+
+    $date = date('Y-m-d H:i:s');
+    $title = $cache -> get('forum') -> name;
+    $url = $cache -> get('forum') -> url;
+
+    $avatar  = getImgUrl($post['avatar']);
+    $name    = $post['name'];
+    $img     = getImgUrl($post['media'][0]);
+    $message = empty($post['media']) ? $post['message'] : "<img src='{$img}' style='max-height: 80px;'>";
+    $parentAvatar  = getImgUrl($parentPost['avatar']);
+    $parentName    = $parentPost['name'];
+    $parentImg     = getImgUrl($parentPost['media'][0]);
+    $parentMessage = empty($parentPost['media']) ? $parentPost['message'] : "<img src='{$parentImg}' style='max-height: 80px;'>";;
+
+    // 内容
+    $content = file_get_contents(__DIR__.'/PHPMailer/template.html');
+    $fields = array('avatar', 'parentAvatar', 'name', 'parentName', 'message', 'parentMessage', 'postUrl', 'url', 'title', 'date');
+    foreach ($fields as $field) {
+        $content = str_replace('{{'.$field.'}}', $$field, $content);
+    }
+    if (empty($content)) {
+        return false;
+    }
+
+    // 发送邮件
+    $mail = new PHPMailer();
+    $mail->CharSet = "UTF-8";
+    $mail->IsSMTP();
+    $mail->SMTPAuth   = true;
+    $mail->SMTPSecure = SMTP_SECURE;
+    $mail->Host       = SMTP_HOST;
+    $mail->Port       = SMTP_PORT;
+    $mail->Username   = SMTP_USERNAME;
+    $mail->Password   = SMTP_PASSWORD;
+    $mail->Subject = '您在「' . $title . '」的评论有了新回复';
+    $mail->MsgHTML($content);
+    $mail->AddAddress($parentEmail, $parentName);
+    $from = defined('SMTP_FROM') ? SMTP_FROM : SMTP_USERNAME;
+    $from_name = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $title;
+    $mail->SetFrom($from, $from_name);
+
+    return $mail->Send();
+}
+
+
+function email($postId, $parentPostId, $parentEmail){
+    // 获取被回复信息
+    $curl_url = '/api/3.0/posts/details.json?';
+    $fields = (object) array(
+        'post' => $parentPostId,
+        'related' => 'thread'
+    );
+    $data = curl_get($curl_url, $fields);
+    if ($data -> code != 0) {
+        return false;
+    }
+    $parentPost = post_format($data->response);
+    $postUrl = $data -> response-> thread -> link;
+    $parentPost['name'] = 'Your';
+
+    // 获取回复信息
+    $fields = (object) array(
+        'post' => $postId
+    );
+    $data = curl_get($curl_url, $fields);
+    if ($data -> code != 0) {
+        return false;
+    }
+    $post = post_format($data->response);
+
+    return send($parentEmail, $post, $parentPost, $postUrl);
 }

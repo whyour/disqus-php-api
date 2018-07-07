@@ -15,6 +15,7 @@
  *
  */
 require_once('init.php');
+require_once('sendemail.php');
 
 $author_name = $_POST['name'];
 $author_email = $_POST['email'];
@@ -23,36 +24,18 @@ $thread = $_POST['thread'];
 $parent = $_POST['parent'];
 $identifier = $_POST['identifier'];
 
-// 存在父评，即回复
-if(!empty($parent)){
-
-    $fields = (object) array(
-        'post' => $parent
-    );
-    $curl_url = '/api/3.0/posts/details.json?';
-    $data = curl_get($curl_url, $fields);
-    $isAnonParent = $data->response->author->isAnonymous;
-    if( $isAnonParent == false ){
-        // 防止重复发邮件
-        $approved = null;
-    }
-}
-
 $curl_url = '/api/3.0/posts/create.json';
 $post_message = $emoji->toUnicode($_POST['message']);
 
 // 已登录
 if( isset($access_token) ){
-
     $post_data = (object) array(
         'thread' => $thread,
         'parent' => $parent,
         'message' => $post_message,
         'ip_address' => $_SERVER['REMOTE_ADDR']
     );
-
 } else {
-
     $post_data = (object) array(
         'thread' => $thread,
         'parent' => $parent,
@@ -61,75 +44,47 @@ if( isset($access_token) ){
         'author_email' => $author_email,
         'author_url' => $author_url
     );
-
-    if(!!$cache -> get('cookie')){
-        $post_data -> state = $approved;
-    }
 }
 
 $data = curl_post($curl_url, $post_data);
 
 if( $data -> code == 0 ){
-
     $output = array(
         'code' => $data -> code,
         'thread' => $thread,
         'response' => post_format($data -> response)
     );
+} else {
+    $output = $data;
+}
 
+print_r(json_encode($output));
+fastcgi_finish_request();
+
+// 发送邮件通知
+if( $data -> code == 0 ){
     $id = $data -> response -> id;
     $createdAt = $data -> response ->createdAt;
     $posts = $cache -> get('posts');
 
-    // 父评邮箱号存在
+    // 邮件通知父评,目前只能做到匿名评论,无法通过其他方式获取邮件地址
     if( isset($posts -> $parent) && SMTP_ENABLE ){
-        $parentPost = $posts -> $parent;
-        $fields = (object) array(
-            'parent' => $parent,
-            'parentEmail' => $parentPost -> email,
-            'id' => $id
-        );
-
-        $fields_string = fields_format($fields);
-
-        $ch = curl_init();
-        $options = array(
-            CURLOPT_URL => getCurrentDir().'/sendemail.php',
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_POST => count($fields),
-            CURLOPT_POSTFIELDS => $fields_string,
-            CURLOPT_TIMEOUT => 1
-        );
-        curl_setopt_array($ch, $options);
-        curl_exec($ch);
-        $errno = curl_errno($ch);
-        if ($errno == 60 || $errno == 77) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-            curl_exec($ch);
-        }
-        curl_close($ch);
+        email($id, $parent, $posts -> $parent -> email);
     }
 
     // 匿名用户暂存邮箱号
     if( !isset($access_token) ){
-        foreach ( $posts as $key => $post ){
+        /*foreach ( $posts as $key => $post ){
             if(strtotime('-1 month') > strtotime($post -> createdAt)){
                 unset($posts -> $key);
             }
-        }
+        }*/
         $posts -> $id = (object) array(
             'email' => $author_email,
             'createdAt' => $createdAt
         );
         $cache -> update($posts, 'posts');
     }
-} else {
-
-    $output = $data;
-
 }
 
-print_r(json_encode($output));
-
-fastcgi_finish_request();
 updateThreadData("ident:$identifier");

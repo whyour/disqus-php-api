@@ -457,6 +457,11 @@ function getComments($data, $pid = 0, &$result = array()){
     return $result;
 }
 
+function getImgUrl($url, $https = false){
+    $protocol = $https ? 'https:' : 'http:';
+    return strpos($url, 'http') !== false ? $url : $protocol . $url;
+}
+
 if( time() > strtotime($cache -> get('cookie') -> expires) || !$cache -> get('cookie') ){
     adminLogin();
 }
