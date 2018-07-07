@@ -63,7 +63,7 @@ function send($parentEmail, $post, $parentPost, $postUrl){
     } else {
         $msg = sprintf($msg, 'success', '');
     }
-    @file_put_contents(__DIR__.'/logs/email.log', $msg . PHP_EOL);
+    @file_put_contents(__DIR__.'/logs/email.log', $msg . PHP_EOL, FILE_APPEND);
 
     return $reuslt;
 }
