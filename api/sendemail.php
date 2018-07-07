@@ -29,7 +29,9 @@ function send($parentEmail, $post, $parentPost, $postUrl){
     // 内容
     $content = file_get_contents(__DIR__.'/PHPMailer/template.html');
     $fields = array('avatar', 'parentAvatar', 'name', 'parentName', 'message', 'parentMessage', 'postUrl', 'url', 'title', 'date');
+    $param = array();
     foreach ($fields as $field) {
+        $param[$field] = $$field;
         $content = str_replace('{{'.$field.'}}', $$field, $content);
     }
     if (empty($content)) {
@@ -53,7 +55,17 @@ function send($parentEmail, $post, $parentPost, $postUrl){
     $from_name = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $title;
     $mail->SetFrom($from, $from_name);
 
-    return $mail->Send();
+    $reuslt = $mail->Send();
+    // 日志
+    $msg = sprintf("%s %s|param=%s|msg=%s", date('Y-m-d H:i:s'), '%s', json_encode($param), '%s');
+    if (!$reuslt) {
+        $msg = sprintf($msg, 'failed', $mail->ErrorInfo);
+    } else {
+        $msg = sprintf($msg, 'success', '');
+    }
+    @file_put_contents(__DIR__.'/logs/email.log', $msg);
+
+    return $reuslt;
 }
 
 
