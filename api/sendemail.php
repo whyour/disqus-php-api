@@ -57,6 +57,7 @@ function send($parentEmail, $post, $parentPost, $postUrl){
 
     $reuslt = $mail->Send();
     // 日志
+    $param['email'] = $parentEmail;
     $msg = sprintf("%s %s|param=%s|msg=%s", date('Y-m-d H:i:s'), '%s', json_encode($param), '%s');
     if (!$reuslt) {
         $msg = sprintf($msg, 'failed', $mail->ErrorInfo);
