@@ -15,7 +15,7 @@
  *
  */
 require_once('init.php');
-require_once('sendemail.php');
+require_once('Queue.php');
 
 $author_name = $_POST['name'];
 $author_email = $_POST['email'];
@@ -69,7 +69,13 @@ if( $data -> code == 0 ){
 
     // 邮件通知父评,目前只能做到匿名评论,无法通过其他方式获取邮件地址
     if( isset($posts -> $parent) && SMTP_ENABLE ){
-        email($id, $parent, $posts -> $parent -> email);
+        // 放入队列
+        try {
+            $queue = new Queue();
+            $queue->push(array('id' => $id, 'parent' => $parent, 'email' => $posts -> $parent -> email, 'time' => time()));
+        } catch (\Exception $e) {
+
+        }
     }
 
     // 匿名用户暂存邮箱号
