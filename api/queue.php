@@ -70,7 +70,7 @@ class Queue
      */
     public function push(array $data)
     {
-        return (boolean)$this->redisInstance->lPush($this->key, json_encode($data));
+        return (boolean)$this->redisInstance->rPush($this->key, json_encode($data));
     }
 
     /**
