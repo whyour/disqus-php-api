@@ -1,5 +1,5 @@
 #!/usr/bin/env php
-# */5 * * * * /usr/bin/flock -xn /var/run/disqus-email.lock -c "/home/www/disqus/bash/email >> /home/www/disqus/bash/email/email.log"
+# */5 * * * * /usr/bin/flock -xn /var/run/disqus-email.lock -c "/home/www/disqus/bash/email"
 
 <?php
 /**
