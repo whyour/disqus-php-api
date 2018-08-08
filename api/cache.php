@@ -10,7 +10,7 @@
 
 class Cache {
 
-    protected static $dir = './cache/';
+    protected static $dir = __DIR__ . '/cache/';
     protected static $filename;
     protected static $file;
     protected static $data;
