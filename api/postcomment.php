@@ -15,7 +15,7 @@
  *
  */
 require_once('init.php');
-require_once('Queue.php');
+require_once('queue.php');
 
 $author_name = $_POST['name'];
 $author_email = $_POST['email'];
