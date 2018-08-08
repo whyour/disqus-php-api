@@ -10,7 +10,7 @@
  */
 
 require_once(__DIR__ . '/../api/config.php');
-require_once(__DIR__ . '/../api/Queue.php');
+require_once(__DIR__ . '/../api/queue.php');
 require_once(__DIR__ . '/../api/sendemail.php');
 
 $queue = new Queue();
