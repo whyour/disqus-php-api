@@ -1,11 +1,11 @@
 const webpack = require('webpack');
-const autoprefixer = require('autoprefixer'); 
+const autoprefixer = require('autoprefixer');
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-module.exports = function(env, argv) {
+module.exports = function (env, argv) {
 
     return {
 
@@ -36,7 +36,7 @@ module.exports = function(env, argv) {
                         'css-loader',
                         {
                             loader: 'postcss-loader',
-                            options: { plugins: () => [ require('autoprefixer') ] }
+                            options: { plugins: () => [require('autoprefixer')] }
                         },
                         'sass-loader'
                     ]
@@ -64,5 +64,5 @@ module.exports = function(env, argv) {
             port: 9000,
             openPage: '/disqus-php-api.html'
         }
-    }
+    };
 };
