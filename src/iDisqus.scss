@@ -277,7 +277,7 @@
     display: flex;
     .comment-image-progress {
         position: relative;
-        height: 80px;
+        height: 50px;
         width: 0;
         background: url("https://a.disquscdn.com/next/embed/assets/img/loader.5cc23909da9c4a9874500d7a85c4125f.gif") center no-repeat;
         margin: 0 5px;
@@ -947,7 +947,7 @@
             margin: 5px;
         }
         .comment-form-input {
-            margin: 5px;
+            margin: 3px 0;
             width: 100%;
         }
     }
@@ -956,5 +956,8 @@
     }
     .comment-form-wrapper.logged-in .comment-actions-form {
         margin: 0;
+    }
+    .comment-list {
+        margin-top: 50px;
     }
 }
