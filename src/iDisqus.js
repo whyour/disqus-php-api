@@ -666,7 +666,7 @@
                     if(data.code == 0){
                         var posts = data.response;
                         posts.filter(function (p) {
-                            return currentUrl.indexOf(p.url[0])
+                            return currentUrl.indexOf(p.url[0]) !== -1;
                         })
                         var number = posts.length % 2;
                         if (!number) {
