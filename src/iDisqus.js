@@ -655,7 +655,7 @@
                             // postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
                             postsHtml += 
                             `
-                                <li class="discovery-post post-0">
+                                <li class="discovery-post">
                                     <a class="publisher-anchor-color" href="" target="" rel="">
                                         <header class="discovery-post-header">
                                             <h3 title="${item.title}">
