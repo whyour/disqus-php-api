@@ -516,6 +516,7 @@
                 _.disqus();
                 break;
         }
+        _.popular();
     }
 
     // 切换评论框
