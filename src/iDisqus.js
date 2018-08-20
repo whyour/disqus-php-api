@@ -662,10 +662,11 @@
                 _.opts.api + '/popular.php', 
                 function(resp) {
                     var data = JSON.parse(resp);
+                    var currentUrl = window.location.href;
                     if(data.code == 0){
                         var posts = data.response;
                         posts.filter(function (p) {
-                            return p.indexOf(p.url[0])
+                            return currentUrl.indexOf(p.url[0])
                         })
                         var number = posts.length % 2;
                         if (!number) {
