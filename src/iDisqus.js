@@ -461,7 +461,22 @@
             '        </div>\n'+
             '    </div>\n'+
             '    <ul id="comments" class="comment-list"></ul>\n'+
-            '    <a href="javascript:;" class="comment-loadmore">加载更多</a>\n'+
+            '    <a href="javascript:;" class="comment-loadmore">加载更多</a>\n' +
+            '    <div id="placement-bottom" class="disqus-api">\n'+
+            '        <div class="post-list">\n'+
+            '            <div>\n'+
+            '                <div class="discovery-main">\n'+
+            '                    <section class="col-organic">\n'+
+            '                        <header class="discovery-col-header">\n'+
+            '                            <h2>在 <strong>whyour</strong> 上还有</h2>\n'+
+            '                        </header>\n'+
+            '                        <ul class="discovery-posts" id="popular-posts" >\n'+
+            '                        </ul>\n'+
+            '                    </section>\n'+
+            '                </div>\n'+
+            '            </div>\n'+
+            '        </div>\n'+
+            '    </div>\n'+
             '</div>\n'+
             '<div class="comment" id="disqus_thread"></div>';
 
@@ -509,7 +524,6 @@
         if( _.stat.current == 'disqus' ){
             _.stat.current = 'idisqus';
             _.dom.querySelector('#idisqus').style.display = 'block';
-            _.dom.querySelector('#placement-bottom').style.display = 'block';
             _.dom.querySelector('#disqus_thread').style.display = 'none';
         } else {
             _.disqus();
@@ -569,7 +583,6 @@
         } else {
             _.stat.current = 'disqus';
             _.dom.querySelector('#idisqus').style.display = 'none';
-            _.dom.querySelector('#placement-bottom').style.display = 'none';
             _.dom.querySelector('#disqus_thread').style.display = 'block';
         }
     }
