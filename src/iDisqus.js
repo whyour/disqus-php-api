@@ -516,7 +516,6 @@
                 _.disqus();
                 break;
         }
-        _.popular();
     }
 
     // 切换评论框
@@ -657,6 +656,7 @@
     // 热门评论
     iDisqus.prototype.popular = function(){
         var _ = this;
+        _.opts.popular = document.getElementById('popular-posts');
         if(!!_.opts.popular){
             getAjax(
                 _.opts.api + '/popular.php', 
