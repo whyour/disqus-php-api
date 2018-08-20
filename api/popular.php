@@ -26,6 +26,7 @@ foreach ( $data -> response as $key => $post ) {
         'postsInInterval'=> $post -> postsInInterval,
         'posts'=> $post -> posts,
         'message'=> $post -> raw_message,
+        'url'=> $post -> identifiers,
     );
 }
 

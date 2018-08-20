@@ -664,6 +664,13 @@
                     var data = JSON.parse(resp);
                     if(data.code == 0){
                         var posts = data.response;
+                        posts.filter(function (p) {
+                            return p.indexOf(p.url[0])
+                        })
+                        var number = posts.length % 2;
+                        if (!number) {
+                            posts.slice(0, posts.length - 1);
+                        }
                         var postsHtml = '';
                         posts.forEach(function(item){
                             // postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
