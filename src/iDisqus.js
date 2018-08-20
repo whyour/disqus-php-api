@@ -672,7 +672,7 @@
                                                 <span class="user" data-role="discovery-top-comment-author">@</span>
                                                 —
                                                 <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
-                                                   ${item.message}
+                                                   
                                                 </span>
                                             </p>
                                         </a>
