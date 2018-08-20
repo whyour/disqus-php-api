@@ -509,6 +509,7 @@
         if( _.stat.current == 'disqus' ){
             _.stat.current = 'idisqus';
             _.dom.querySelector('#idisqus').style.display = 'block';
+            _.dom.querySelector('#placement-bottom').style.display = 'block';
             _.dom.querySelector('#disqus_thread').style.display = 'none';
         } else {
             _.disqus();
@@ -568,6 +569,7 @@
         } else {
             _.stat.current = 'disqus';
             _.dom.querySelector('#idisqus').style.display = 'none';
+            _.dom.querySelector('#placement-bottom').style.display = 'none';
             _.dom.querySelector('#disqus_thread').style.display = 'block';
         }
     }
@@ -650,7 +652,33 @@
                         var posts = data.response;
                         var postsHtml = '';
                         posts.forEach(function(item){
-                            postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
+                            // postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
+                            postsHtml += 
+                            `
+                                <li class="discovery-post post-0">
+                                    <a class="publisher-anchor-color" href="" target="" rel="">
+                                        <header class="discovery-post-header">
+                                            <h3 title="${item.title}">
+                                                <span data-role="discovery-thread-title" class="title line-truncate" data-line-truncate="2">${item.title}</span>
+                                            </h3>
+                                            <ul class="meta">
+                                                <li class="comments">${item.posts}条评论 </li>
+                                                <li class="time">${item.postsInInterval}天前</li>
+                                            </ul>
+                                        </header>
+                                        <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
+                                            <img alt="头像" data-role="discovery-avatar" src="//a.disquscdn.com/1534292124/images/noavatar92.png">
+                                            <p>
+                                                <span class="user" data-role="discovery-top-comment-author">@</span>
+                                                —
+                                                <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
+                                                   ${item.message}
+                                                </span>
+                                            </p>
+                                        </a>
+                                    </a>
+                                </li>
+                            `
                         });
                         _.opts.popular.innerHTML = postsHtml;
                     }

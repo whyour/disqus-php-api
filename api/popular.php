@@ -22,7 +22,10 @@ $posts = array();
 foreach ( $data -> response as $key => $post ) {
     $posts[$key] = array( 
         'link'=> $post->link,
-        'title'=> $post -> clean_title
+        'title'=> $post -> clean_title,
+        'postsInInterval'=> $post -> postsInInterval,
+        'posts'=> $post -> posts,
+        'message'=> $post -> raw_message,
     );
 }
 
