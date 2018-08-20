@@ -664,9 +664,9 @@
                     var data = JSON.parse(resp);
                     var currentUrl = window.location.href;
                     if(data.code == 0){
-                        var posts = data.response;
-                        posts.filter(function (p) {
-                            return currentUrl.indexOf(p.url[0]) !== -1;
+                        var _posts = data.response;
+                        var posts = _posts.filter(function (p) {
+                            return currentUrl !== p.link;
                         })
                         var number = posts.length % 2;
                         if (!number) {
