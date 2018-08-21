@@ -688,16 +688,6 @@
                                                 <li class="time">${item.postsInInterval}天前</li>
                                             </ul>
                                         </header>
-                                        <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
-                                            <img alt="头像" data-role="discovery-avatar" src="//a.disquscdn.com/1534292124/images/noavatar92.png">
-                                            <p>
-                                                <span class="user" data-role="discovery-top-comment-author">@</span>
-                                                —
-                                                <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
-                                                   
-                                                </span>
-                                            </p>
-                                        </a>
                                     </a>
                                 </li>
                             `
@@ -710,6 +700,20 @@
             );
         }
     }
+    /*
+     * 评论详情
+     <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
+        <img alt="头像" data-role="discovery-avatar" src="//a.disquscdn.com/1534292124/images/noavatar92.png">
+        <p>
+            <span class="user" data-role="discovery-top-comment-author">@</span>
+            —
+            <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
+                
+            </span>
+        </p>
+    </a> 
+     * 
+     */
 
     // 获取评论列表
     iDisqus.prototype.getlist = function(){
