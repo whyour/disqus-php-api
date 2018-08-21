@@ -688,6 +688,16 @@
                                                 <li class="time">${item.postsInInterval}天前</li>
                                             </ul>
                                         </header>
+                                        <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
+                                            <img alt="头像" data-role="discovery-avatar" src="${item.author.cache}">
+                                            <p>
+                                                <span class="user" data-role="discovery-top-comment-author">${item.author.name}</span>
+                                                —
+                                                <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
+                                                    ${item.message}
+                                                </span>
+                                            </p>
+                                        </a> 
                                     </a>
                                 </li>
                             `

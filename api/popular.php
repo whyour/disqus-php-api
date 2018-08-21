@@ -15,20 +15,33 @@ $fields = (object) array(
     'forum' => DISQUS_SHORTNAME,
     'interval' => '30d'
 );
+$fields2 = (object) array();
 $curl_url = '/api/3.0/threads/listPopular.json?';
 $data = curl_get($curl_url, $fields);
 
 $posts = array();
 foreach ( $data -> response as $key => $post ) {
     $posts[$key] = array( 
-        'link'=> $post->link,
+        'id'=> $post -> id,
+        'link'=> $post-> link,
         'title'=> $post -> clean_title,
         'postsInInterval'=> $post -> postsInInterval,
         'posts'=> $post -> posts,
-        'message'=> $post -> raw_message,
-        'url'=> $post -> identifiers,
     );
+    $fields2 += array('thread'=> $post -> id );
 }
+
+$curl_url2 = '/api/3.0/discovery/listTopPost.json?';
+$data2 = curl_get($curl_url2, $fields2);
+foreach ( $data2 -> response as $k => $p ) {
+    foreach ( $posts as $i => $post) {
+        if ($p -> id == $post -> thread) {
+            $post += array('avatar'=> $p -> avatar);
+            $post += array('message'=> $p -> message);
+        }
+    }
+}
+
 
 $output = $data -> code == 0 ? array(
     'code' => $data -> code,
