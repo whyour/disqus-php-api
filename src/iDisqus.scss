@@ -925,50 +925,6 @@
     }
 }
 
-@media screen and(max-width: 450px) {
-    .comment-item {
-        .comment-item-children .comment-item-children,
-        .comment-item-children .comment-box {
-            padding-left: 0 !important;
-        }
-        .at {
-            display: none;
-        }
-        .comment-item-children .comment-item-avatar {
-            display: none;
-        }
-        .comment-avatar {
-            display: none;
-        }
-    }
-    .comment-form-user {
-        line-height: 42px;
-        .comment-form-auth {
-            margin: 5px;
-        }
-        .comment-form-input {
-            margin: 3px 0;
-            width: 100%;
-        }
-    }
-    .comment-form-wrapper.editing .comment-actions-form {
-        margin: 180px 0 0;
-    }
-    .comment-form-wrapper.logged-in .comment-actions-form {
-        margin: 0;
-    }
-    .comment-list {
-        margin-top: 50px;
-    }
-    .post-list {
-        .discovery-main {
-            .discovery-post {
-                width: 100%;
-            }
-        }
-    }
-}
-
 .post-list {
     list-style-type: none;
     margin: 0;
@@ -1055,6 +1011,50 @@
         }
         .discovery-col-header h2 strong {
             color: #413a3a;
+        }
+    }
+}
+
+@media screen and(max-width: 450px) {
+    .comment-item {
+        .comment-item-children .comment-item-children,
+        .comment-item-children .comment-box {
+            padding-left: 0 !important;
+        }
+        .at {
+            display: none;
+        }
+        .comment-item-children .comment-item-avatar {
+            display: none;
+        }
+        .comment-avatar {
+            display: none;
+        }
+    }
+    .comment-form-user {
+        line-height: 42px;
+        .comment-form-auth {
+            margin: 5px;
+        }
+        .comment-form-input {
+            margin: 3px 0;
+            width: 100%;
+        }
+    }
+    .comment-form-wrapper.editing .comment-actions-form {
+        margin: 180px 0 0;
+    }
+    .comment-form-wrapper.logged-in .comment-actions-form {
+        margin: 0;
+    }
+    .comment-list {
+        margin-top: 50px;
+    }
+    .post-list {
+        .discovery-main {
+            .discovery-post {
+                width: 100%;
+            }
         }
     }
 }
