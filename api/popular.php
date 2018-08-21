@@ -28,7 +28,8 @@ foreach ( $data -> response as $key => $post ) {
         'postsInInterval'=> $post -> postsInInterval,
         'posts'=> $post -> posts,
     );
-    $fields2 += array('thread'=> $post -> id );
+    $obj -> thread = $post -> id;
+    array_push($fields2, $obj);
 }
 
 $curl_url2 = '/api/3.0/discovery/listTopPost.json?';
@@ -36,8 +37,9 @@ $data2 = curl_get($curl_url2, $fields2);
 foreach ( $data2 -> response as $k => $p ) {
     foreach ( $posts as $i => $post) {
         if ($p -> id == $post -> thread) {
-            $post += array('avatar'=> $p -> avatar);
-            $post += array('message'=> $p -> message);
+            $obj1 -> avatar = $p -> avatar;
+            $obj2 -> message = $p -> message;
+            array_push($post, $obj1, $obj2);
         }
     }
 }
