@@ -22,7 +22,7 @@ $data = curl_get($curl_url, $fields);
 $posts = array();
 $thread = array();
 foreach ( $data -> response as $key => $post ) {
-    $posts[$key] = array( 
+    $posts[$key] = (object) array( 
         'id'=> $post -> id,
         'link'=> $post-> link,
         'title'=> $post -> clean_title,
@@ -32,14 +32,15 @@ foreach ( $data -> response as $key => $post ) {
     $thread[] = $post -> id;
 }
 $fields2 -> thread = $thread;
-
 $curl_url2 = '/api/3.0/discovery/listTopPost.json?';
 $data2 = curl_get($curl_url2, $fields2);
 foreach ( $data2 -> response as $k => $p ) {
-    foreach ( $posts as $i => $post) {
-        if ($p -> id == $post -> thread) {
-            $post -> avatar = $p -> avatar;
-            $post -> message = $p -> message;
+	foreach ( $posts as $i => $post) {
+		$a = $p -> thread;
+		$b = $post -> id;
+        if ($a == $b) {
+            $post -> author = $p -> author;
+            $post -> message = $p -> raw_message;
         }
     }
 }

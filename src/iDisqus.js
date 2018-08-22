@@ -689,7 +689,7 @@
                                             </ul>
                                         </header>
                                         <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
-                                            <img alt="头像" data-role="discovery-avatar" src="${item.author.cache}">
+                                            <img alt="头像" data-role="discovery-avatar" src="${item.author.avatar.cache}">
                                             <p>
                                                 <span class="user" data-role="discovery-top-comment-author">${item.author.name}</span>
                                                 —
