@@ -956,13 +956,16 @@
             max-height: 2.5em;
             overflow: hidden;
         }
-        .discovery-post a.title {
-            word-wrap:break-word
+        .discovery-post a > p {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 18.5em;
         }
         .discovery-post a.title,
         .discovery-post h3 {
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 500;
             line-height: 1.25em;
         }
         .discovery-post h3 {
