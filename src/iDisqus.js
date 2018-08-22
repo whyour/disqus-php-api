@@ -685,7 +685,9 @@
                                             </h3>
                                             <ul class="meta">
                                                 <li class="comments">${item.posts}条评论 </li>
-                                                <li class="time">${item.postsInInterval}天前</li>
+                                                <li class="time">
+                                                    <time class="comment-item-time" datetime="${item.createdAt}"></time>
+                                                </li>
                                             </ul>
                                         </header>
                                         <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">

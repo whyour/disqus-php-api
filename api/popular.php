@@ -28,6 +28,7 @@ foreach ( $data -> response as $key => $post ) {
         'title'=> $post -> clean_title,
         'postsInInterval'=> $post -> postsInInterval,
         'posts'=> $post -> posts,
+        'createdAt'=> $post -> createdAt,
     );
     $thread[] = $post -> id;
 }
