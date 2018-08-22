@@ -468,7 +468,7 @@
             '                <div class="discovery-main">\n'+
             '                    <section class="col-organic">\n'+
             '                        <header class="discovery-col-header">\n'+
-            '                            <h2>在 <strong>whyour</strong> 上还有</h2>\n'+
+            '                            <h2>在 <strong>'+ _.opts.forum +'</strong> 上还有</h2>\n'+
             '                        </header>\n'+
             '                        <ul class="discovery-posts" id="popular-posts" >\n'+
             '                        </ul>\n'+
