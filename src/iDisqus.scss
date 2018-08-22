@@ -956,6 +956,9 @@
             max-height: 2.5em;
             overflow: hidden;
         }
+        .discovery-post a.title {
+            word-wrap:break-word
+        }
         .discovery-post a.title,
         .discovery-post h3 {
             font-size: 16px;
@@ -1050,11 +1053,14 @@
     .comment-list {
         margin-top: 50px;
     }
-    .post-list {
-        .discovery-main {
-            .discovery-post {
-                width: 100%;
-            }
-        }
+
+    .discovery-post {
+        float:left;
+        width:100%;
+        margin-bottom:10px
     }
+    .discovery-post:nth-child(odd) {
+        margin-right:0
+    }
+
 }
