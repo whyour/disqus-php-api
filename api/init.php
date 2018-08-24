@@ -305,7 +305,7 @@ function post_format( $post ){
             if(preg_match('/^(http|https):\/\/disq\.us/i', $urlItem)){
                 parse_str(parse_url($urlItem,PHP_URL_QUERY),$out);
                 $linkArr[$item] = '<a href="'.join(':', explode(':',$out['url'],-1)).'" target="_blank" title="'.$urlArr[2][$item].'">'.$urlArr[2][$item].'</a>';
-                // 去掉图片链接
+            // 去掉图片链接
             } elseif ( preg_match('/^(http|https):\/\/.*(disquscdn.com|media.giphy.com).*\.(jpg|gif|png)$/i', $urlItem) ){
                 $linkArr[$item] = '';
             } elseif ( strpos($urlItem, 'https://disqus.com/by/') !== false ){
