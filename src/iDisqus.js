@@ -673,6 +673,9 @@
                             posts.slice(0, posts.length - 1);
                         }
                         var postsHtml = '';
+                        if (posts.length % 2 !== 0) {
+                            posts.pop();
+                        }
                         posts.forEach(function(item){
                             // postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
                             postsHtml += 
