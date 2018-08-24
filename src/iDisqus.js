@@ -705,6 +705,7 @@
                             `
                         });
                         _.opts.popular.innerHTML = postsHtml;
+                        _.timeAgo();
                     }
                 },function(){
                     console.log('获取数据失败！')
