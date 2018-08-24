@@ -24,6 +24,21 @@ $thread = $_POST['thread'];
 $parent = $_POST['parent'];
 $identifier = $_POST['identifier'];
 
+// 存在父评，即回复
+if(!empty($parent)){
+    $fields = (object) array(
+        'post' => $parent
+    );
+    $curl_url = '/api/3.0/posts/details.json?';
+    $data = curl_get($curl_url, $fields);
+    $pAuthor = $data->response->author;
+    $pUid = md5($pAuthor->name.$pAuthor->email);
+    if( $pAuthor->isAnonymous == false ){
+        // 防止重复发邮件
+        $approved = null;
+    }
+}
+
 $curl_url = '/api/3.0/posts/create.json';
 $post_message = $emoji->toUnicode($_POST['message']);
 
@@ -44,6 +59,10 @@ if( isset($access_token) ){
         'author_email' => $author_email,
         'author_url' => $author_url
     );
+
+    if(!!$cache -> get('cookie')){
+        $post_data -> state = $approved;
+    }
 }
 
 $data = curl_post($curl_url, $post_data);
