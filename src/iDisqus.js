@@ -681,7 +681,7 @@
                             postsHtml += 
                             `
                                 <li class="discovery-post">
-                                    <a class="publisher-anchor-color" href="" target="" rel="">
+                                    <a class="publisher-anchor-color" href="${item.link}" target="" rel="">
                                         <header class="discovery-post-header">
                                             <h3 title="${item.title}">
                                                 <span data-role="discovery-thread-title" class="title line-truncate" data-line-truncate="2">${item.title}</span>
