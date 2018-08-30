@@ -10,32 +10,39 @@
  * @param url     访客网址，可为空
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-08-18 16:24:05
+ * @version  2018-08-30 07:47:42
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
 require_once('init.php');
+require_once('sendemail.php');
 
 $authorName = $_POST['name'];
 $authorEmail = $_POST['email'];
 $authorUrl = $_POST['url'] == '' || $_POST['url'] == 'null' ? null : $_POST['url'];
-$thread = $_POST['thread'];
+$threadId = $_POST['thread'];
 $parent = $_POST['parent'];
+$authors = $cache -> get('authors');
 
 // 存在父评，即回复
 if(!empty($parent)){
 
     $fields = (object) array(
-        'post' => $parent
+        'post' => $parent,
+        'related' => 'thread'
     );
     $curl_url = '/api/3.0/posts/details.json?';
     $data = curl_get($curl_url, $fields);
     $pAuthor = $data->response->author;
-    $pUid = md5($pAuthor->name.$pAuthor->email);
     if( $pAuthor->isAnonymous == false ){
         // 防止重复发邮件
         $approved = null;
     }
+    
+    $thread = thread_format($data->response->thread); // 文章信息
+    $pUid = md5($pAuthor->name.$pAuthor->email);
+    $pEmail = $authors -> $pUid; // 被回复邮箱
+    $pPost = post_format($data->response);
 }
 
 $curl_url = '/api/3.0/posts/create.json';
@@ -45,7 +52,7 @@ $postMessage = $emoji->toUnicode($_POST['message']);
 if( isset($access_token) ){
 
     $post_data = (object) array(
-        'thread' => $thread,
+        'thread' => $threadId,
         'parent' => $parent,
         'message' => $postMessage,
         'ip_address' => $_SERVER['REMOTE_ADDR']
@@ -54,7 +61,7 @@ if( isset($access_token) ){
 } else {
 
     $post_data = (object) array(
-        'thread' => $thread,
+        'thread' => $threadId,
         'parent' => $parent,
         'message' => $postMessage,
         'author_name' => $authorName,
@@ -70,46 +77,35 @@ if( isset($access_token) ){
 $data = curl_post($curl_url, $post_data);
 
 if( $data -> code == 0 ){
+    $rPost = post_format($data->response);
 
     $output = array(
         'code' => $data -> code,
         'thread' => $thread,
-        'response' => post_format($data -> response)
+        'parent' => $pPost,
+        'response' => $rPost
     );
 
-    $authors = $cache -> get('authors');
-
-    // 父评邮箱号存在 & 父评是匿名用户
-    if( isset($authors -> $pUid) && $pAuthor->isAnonymous){
-
-        $fields = (object) array(
-            'parent' => $parent,
-            'parentEmail' => $authors -> $pUid,
-            'id' => $data -> response -> id
-        );
-
-        $fields_string = fields_format($fields);
-
-        $ch = curl_init();
-        $options = array(
-            CURLOPT_URL => getCurrentDir().'/sendemail.php',
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_POST => count($fields),
-            CURLOPT_POSTFIELDS => $fields_string,
-            CURLOPT_TIMEOUT => 1
-        );
-        curl_setopt_array($ch, $options);
-        curl_exec($ch);
-        $errno = curl_errno($ch);
-        if ($errno == 60 || $errno == 77) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-            curl_exec($ch);
+    if( function_exists('fastcgi_finish_request') ){
+        print_r(json_encode($output));
+        fastcgi_finish_request();
+        // 父评邮箱号存在且父评是匿名用户
+        if( isset($pEmail) && $pAuthor->isAnonymous ){
+            sendEmail($thread, $pPost, $rPost, $pEmail);
         }
-        curl_close($ch);
+    } else {
+        session_start();
+        $chars = str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        $code = substr($chars, mt_rand(0, strlen($chars) - 1), 8);  
+        $_SESSION[$code] = $pEmail;
+        $output['verifyCode'] = $code;
+        print_r(json_encode($output));
     }
+
 
     // 匿名用户暂存邮箱号
     if( !isset($access_token) ){
+        $authors = $cache -> get('authors');
         $uid = md5($authorName.email_format($authorEmail));
         $authors -> $uid = $authorEmail;
         $cache -> update($authors, 'authors');
@@ -118,7 +114,7 @@ if( $data -> code == 0 ){
 } else {
 
     $output = $data;
+    print_r(json_encode($output));
 
 }
 
-print_r(json_encode($output));

@@ -425,7 +425,12 @@
         }
     }
     .comment-form-textarea {
-        color: #2a2e2e;
+        width: 100%;
+        display: block;
+        border: none;
+        border-radius: 4px;
+        overflow: auto;
+        color: rgb(42, 46, 46);
         cursor: text;
         resize: none;
         border: 0;
