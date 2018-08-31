@@ -1142,7 +1142,7 @@
         var $name = box.querySelector('.comment-form-name');
         var $email = box.querySelector('.comment-form-email');
         var alertmsg = box.querySelector('.comment-form-alert');
-        if($email.val() == ''){
+        if($email.value == ''){
             return;
         }
         getAjax(
