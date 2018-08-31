@@ -11,6 +11,7 @@
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
+
 date_default_timezone_set("Asia/Shanghai");
 require_once('init.php');
 require_once('PHPMailer/class.phpmailer.php');
@@ -18,45 +19,37 @@ require_once('PHPMailer/class.smtp.php');
 
 use PHPMailer;
 
-$code = $_POST['code'];
-if(!empty($code)){
-    session_start();
-    if(isset($_SESSION[$code])){
-        $pEmail = $_SESSION[$code];
-        $thread = json_decode($_POST['thread']);
-        $pPost = json_decode($_POST['parent']);
-        $rPost = json_decode($_POST['post']);
-        sendEmail($thread, $pPost, $rPost, $pEmail);
-        session_destroy();
-    }
-}
-
-$debug = '';
-function sendEmail($thread, $pPost, $rPost, $pEmail){
+function send($parentEmail, $post, $parentPost, $postUrl){
     global $cache;
 
-    $forum = $cache -> get('forum');
-    $forumName = $forum -> name;
-    $forumUrl = $forum -> url;
+    $date = date('Y-m-d H:i:s');
+    $title = $cache -> get('forum') -> name;
+    $url = $cache -> get('forum') -> url;
 
-    $threadTitle = $thread -> title;
-    $threadLink = $thread -> link;
+    $avatar  = getImgUrl($post['avatar']);
+    $name    = $post['name'];
+    $img     = getImgUrl($post['media'][0]);
+    $message = empty($post['media']) ? $post['message'] : "<img src='{$img}' style='max-height: 80px;'>";
+    $parentAvatar  = getImgUrl($parentPost['avatar']);
+    $parentName    = $parentPost['name'];
+    $parentImg     = getImgUrl($parentPost['media'][0]);
+    $parentMessage = empty($parentPost['media']) ? $parentPost['message'] : "<img src='{$parentImg}' style='max-height: 80px;'>";;
 
-    $pId = $pPost -> id;
-    $pName = $pPost -> name;
-    $pMessage = $pPost -> message;
+    // 内容
+    $content = file_get_contents(__DIR__.'/PHPMailer/template.html');
+    $fields = array('avatar', 'parentAvatar', 'name', 'parentName', 'message', 'parentMessage', 'postUrl', 'url', 'title', 'date');
+    $param = array();
+    foreach ($fields as $field) {
+        $param[$field] = $$field;
+        $content = str_replace('{{'.$field.'}}', $$field, $content);
+    }
+    if (empty($content)) {
+        return false;
+    }
 
-    $rName = $rPost -> name;
-    $rMessage = $rPost -> message;
-
-    $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的评论：</p>';
-    $content .= $pMessage;
-    $content .= '<p>' . $rName . ' 的回复如下：</p>';
-    $content .= $rMessage;
-    $content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$threadLink.'?#comment-'.$pId.'">'. $threadTitle . '</a></p>';
-
-    $mail          = new PHPMailer();
-    $mail->CharSet = "UTF-8"; 
+    // 发送邮件
+    $mail = new PHPMailer();
+    $mail->CharSet = "UTF-8";
     $mail->IsSMTP();
     $mail->SMTPAuth   = true;
     $mail->SMTPSecure = SMTP_SECURE;
@@ -64,17 +57,52 @@ function sendEmail($thread, $pPost, $rPost, $pEmail){
     $mail->Port       = SMTP_PORT;
     $mail->Username   = SMTP_USERNAME;
     $mail->Password   = SMTP_PASSWORD;
-    $mail->Subject = '您在「' . $forumName . '」的评论有了新回复';
+    $mail->Subject = '您在「' . $title . '」的评论有了新回复';
     $mail->MsgHTML($content);
-    $mail->AddAddress($pEmail, $pName);
+    $mail->AddAddress($parentEmail, $parentName);
     $from = defined('SMTP_FROM') ? SMTP_FROM : SMTP_USERNAME;
-    $fromName = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forumName;
-    $mail->SetFrom($from, $fromName);
-    $mail->SMTPDebug = 2;
-    $mail->Debugoutput = function($str, $level) {
-        $GLOBALS['debug'] .= $level.': '.$str.'\n';
-    };
-    if(!$mail->Send()) {
-        file_put_contents(__DIR__.'/cache/phpmailer_error.log', $GLOBALS['debug']);
+    $from_name = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $title;
+    $mail->SetFrom($from, $from_name);
+
+    $reuslt = $mail->Send();
+    // 日志
+    $param['email'] = $parentEmail;
+    $msg = sprintf("%s %s|param=%s|msg=%s", date('Y-m-d H:i:s'), '%s', json_encode($param), '%s');
+    if (!$reuslt) {
+        $msg = sprintf($msg, 'failed', $mail->ErrorInfo);
+    } else {
+        $msg = sprintf($msg, 'success', '');
     }
+    @file_put_contents(__DIR__.'/logs/email.log', $msg . PHP_EOL, FILE_APPEND);
+
+    return $reuslt;
+}
+
+
+function email($postId, $parentPostId, $parentEmail){
+    // 获取被回复信息
+    $curl_url = '/api/3.0/posts/details.json?';
+    $fields = (object) array(
+        'post' => $parentPostId,
+        'related' => 'thread'
+    );
+    $data = curl_get($curl_url, $fields);
+    if ($data -> code != 0) {
+        return false;
+    }
+    $parentPost = post_format($data->response);
+    $postUrl = $data -> response-> thread -> link;
+    $parentPost['name'] = 'Your';
+
+    // 获取回复信息
+    $fields = (object) array(
+        'post' => $postId
+    );
+    $data = curl_get($curl_url, $fields);
+    if ($data -> code != 0) {
+        return false;
+    }
+    $post = post_format($data->response);
+
+    return send($parentEmail, $post, $parentPost, $postUrl);
 }

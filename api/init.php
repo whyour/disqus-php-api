@@ -402,6 +402,77 @@ function post_format( $post ){
         'url' => $author -> url,
         'parent' => $post -> parent
     );
+
+    return $data;
+}
+
+function getForumData(){
+
+    global $cache;
+
+    $fields = (object) array(
+        'forum' => DISQUS_SHORTNAME
+    );
+    $curl_url = '/api/3.0/forums/details.json?';
+    $data = curl_get($curl_url, $fields);
+    $modText = $data -> response -> moderatorBadgeText;
+    $forum = array(
+        'founder' => $data -> response -> founder,
+        'name' => $data -> response -> name,
+        'url' => $data -> response -> url,
+        'avatar' => $data -> response -> avatar -> large -> cache,
+        'moderatorBadgeText' =>  !!$modText ? $modText : 'Mod',
+        'expires' => time() + 3600*24
+    );
+    if( $data -> code == 0 ){
+        $cache -> update($forum,'forum');
+    }
+}
+
+function updateThreadData($thread){
+
+    global $cache;
+
+    try {
+        $fields = (object) array(
+            'forum' => DISQUS_SHORTNAME,
+            'thread' => $thread
+        );
+
+        $curl_url = '/api/3.0/threads/details.json?';
+        $detail = curl_get($curl_url, $fields);
+
+        $id = md5($thread);
+        $data = (array)$cache -> get('threads');
+        if($detail -> code == 0){
+            $data[$id] = array(
+                'id' => $detail -> response -> id,
+                'slug' => $detail -> response -> slug,
+                'posts' => $detail -> response -> posts,
+                'expires' => time() + 3600*6
+            );
+
+            $cache -> update($data,'threads');
+
+            return (object)$data[$id];
+        }
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+function getThreadDataByCache($thread){
+
+    global $cache;
+
+    $threads = $cache -> get('threads');
+
+    $id = md5($thread);
+    if(isset($threads -> $id) && time() < $threads -> $id -> expires){
+        return $threads -> $id;
+    }
+
+    return updateThreadData($thread);
 }
 
 // 取得当前目录
@@ -418,6 +489,11 @@ function getCurrentDir (){
 
     return $protocol.$_SERVER['HTTP_HOST'].substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT']));
 
+}
+
+function getImgUrl($url, $https = false){
+    $protocol = $https ? 'https:' : 'http:';
+    return strpos($url, 'http') !== false ? $url : $protocol . $url;
 }
 
 if( time() > strtotime($cache -> get('cookie') -> expires) || !$cache -> get('cookie') ){

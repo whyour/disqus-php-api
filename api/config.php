@@ -69,3 +69,10 @@ define('SMTP_USERNAME', '');
 define('SMTP_PASSWORD', '');
 define('SMTP_FROM', '');
 define('SMTP_FROMNAME', '');
+
+/**
+ * 邮件队列配置
+ */
+define('REDIS_HOST', '');
+define('REDIS_AUTH', '');
+define('EMAIL_DELAY_TIME', 10);

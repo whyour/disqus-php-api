@@ -15,7 +15,7 @@
  *
  */
 require_once('init.php');
-require_once('sendemail.php');
+require_once('queue.php');
 
 $authorName = $_POST['name'];
 $authorEmail = $_POST['email'];
@@ -26,7 +26,6 @@ $authors = $cache -> get('authors');
 
 // 存在父评，即回复
 if(!empty($parent)){
-
     $fields = (object) array(
         'post' => $parent,
         'related' => 'thread'
@@ -34,6 +33,7 @@ if(!empty($parent)){
     $curl_url = '/api/3.0/posts/details.json?';
     $data = curl_get($curl_url, $fields);
     $pAuthor = $data->response->author;
+    $pUid = md5($pAuthor->name.$pAuthor->email);
     if( $pAuthor->isAnonymous == false ){
         // 防止重复发邮件
         $approved = null;
@@ -50,16 +50,13 @@ $postMessage = $emoji->toUnicode($_POST['message']);
 
 // 已登录
 if( isset($access_token) ){
-
     $post_data = (object) array(
         'thread' => $threadId,
         'parent' => $parent,
         'message' => $postMessage,
         'ip_address' => $_SERVER['REMOTE_ADDR']
     );
-
 } else {
-
     $post_data = (object) array(
         'thread' => $threadId,
         'parent' => $parent,
@@ -85,38 +82,44 @@ if( $data -> code == 0 ){
         'parent' => $pPost,
         'response' => $rPost
     );
+} else {
+    $output = $data;
+}
 
-    if( function_exists('fastcgi_finish_request') ){
-        print_r(json_encode($output));
-        fastcgi_finish_request();
-        // 父评邮箱号存在且父评是匿名用户
-        if( isset($pEmail) && $pAuthor->isAnonymous ){
-            sendEmail($thread, $pPost, $rPost, $pEmail);
+print_r(json_encode($output));
+fastcgi_finish_request();
+
+// 发送邮件通知
+if( $data -> code == 0 ){
+    $id = $data -> response -> id;
+    $createdAt = $data -> response ->createdAt;
+    $posts = $cache -> get('posts');
+
+    // 邮件通知父评,目前只能做到匿名评论,无法通过其他方式获取邮件地址
+    if( isset($posts -> $parent) && SMTP_ENABLE ){
+        // 放入队列
+        try {
+            $queue = new Queue();
+            $queue->push(array('id' => $id, 'parent' => $parent, 'email' => $posts -> $parent -> email, 'time' => time()));
+        } catch (\Exception $e) {
+
         }
-    } else {
-        if( isset($pEmail) && $pAuthor->isAnonymous ){
-            session_start();
-            $chars = str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            $code = substr($chars, mt_rand(0, strlen($chars) - 1), 8);  
-            $_SESSION[$code] = $pEmail;
-            $output['verifyCode'] = $code;
-        }
-        print_r(json_encode($output));
     }
 
 
     // 匿名用户暂存邮箱号
     if( !isset($access_token) ){
-        $authors = $cache -> get('authors');
-        $uid = md5($authorName.email_format($authorEmail));
-        $authors -> $uid = $authorEmail;
-        $cache -> update($authors, 'authors');
+        /*foreach ( $posts as $key => $post ){
+            if(strtotime('-1 month') > strtotime($post -> createdAt)){
+                unset($posts -> $key);
+            }
+        }*/
+        $posts -> $id = (object) array(
+            'email' => $author_email,
+            'createdAt' => $createdAt
+        );
+        $cache -> update($posts, 'posts');
     }
-
-} else {
-
-    $output = $data;
-    print_r(json_encode($output));
-
 }
 
+updateThreadData("ident:$identifier");

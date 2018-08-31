@@ -49,6 +49,7 @@ module.exports = function (env, argv) {
                 filename: argv.mode == 'production' ? '[name].min.css' : '[name].css'
             }),
             new CleanWebpackPlugin(['dist'], {
+                exclude: ['eac.json'],
                 watch: true
             }),
             new HtmlWebpackPlugin({

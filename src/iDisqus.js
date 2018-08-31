@@ -289,7 +289,7 @@ require('./iDisqus.scss');
         }];
         
         if(!!_.opts.emoji_preview || !!_.opts.emojiPreview ){
-            getAjax(_.opts.api +'/eac.php', function(resp){
+            getAjax(_.opts.api +'/eac.json', function(resp){
                 _.eac = JSON.parse(resp);
             }, function(){
             })
