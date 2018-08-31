@@ -922,59 +922,61 @@
     }
 }
 
-.comment-popular {
+.comment-related{
     color: #444;
     font-size: 14px;
     margin-top: 20px;
     width: 100%;
-    .comment-popular-title {
+    .comment-related-title{
         font-weight: 700;
         text-transform: uppercase;
-        color: rgba(34, 59, 74, .5);
+        color: rgba(34,59,74,.5);
         margin-bottom: 5px;
     }
-    .comment-popular-forumname {
+    .comment-related-forumname{
         color: #413a3a;
     }
-    .comment-popular-content {}
-    .popular-list {
+    .comment-related-content{
+
+    }
+    .related-list{
         display: flex;
         flex-wrap: wrap;
         list-style: none;
-        .popular-item {
+        .related-item{
             width: 48%;
             margin-bottom: 10px;
-            &:nth-child(odd) {
+            &:nth-child(odd){
                 margin-right: 4%;
             }
         }
-        .popular-item-link {
+        .related-item-link{
             color: #000;
-            &:hover {
-                .popular-item-avatar {
+            &:hover{
+                .related-item-avatar{
                     opacity: .8;
                 }
-                .popular-item-name {
+                .related-item-name{
                     color: #aaa;
                 }
             }
         }
-        .popular-item-title {
+        .related-item-title{
             display: block;
             overflow: hidden;
             font-weight: 700;
             color: rgb(0, 136, 204);
         }
-        .popular-item-desc {
-            color: rgba(30, 55, 70, .4);
+        .related-item-desc{
+            color: rgba(30,55,70,.4);
             font-weight: 500;
             font-size: 12px;
         }
-        .popular-item-post {
+        .related-item-post{
             padding: 5px 0;
             display: flex;
         }
-        .popular-item-avatar {
+        .related-item-avatar{
             width: 30px;
             height: 30px;
             margin-right: 5px;
@@ -985,37 +987,36 @@
                 border-radius: 3px;
             }
         }
-        .popular-item-main {
+        .related-item-main{
             flex: 1;
             height: 30px;
             line-height: 15px;
             overflow: hidden;
             font-size: 13px;
         }
-        .popular-item-name {
-            color: rgba(30, 55, 70, .4);
+        .related-item-name{
+            color: rgba(30,55,70,.4);
             font-weight: 600;
         }
-        .popular-item-message {
+        .related-item-message{
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            width: 20em;
         }
     }
 }
 
-@keyframes disqus-loader-spinner-animation {
-    0% {
-        transform: rotate(0)
-    }
-    100% {
-        transform: rotate(360deg)
-    }
+@keyframes disqus-loader-spinner-animation{
+    0%{transform:rotate(0)}
+    100%{transform:rotate(360deg)}
 }
 
-@media screen and(max-width: 480px) {
-    .comment-item {
+@media screen and(max-width: 450px) {
+    .comment-related .related-list .related-item {
+        width: 100%;
+        padding-left: 10px;
+    }
+    .comment-item{
         .comment-item-children .comment-item-children,
         .comment-item-children .comment-box {
             padding-left: 0 !important;

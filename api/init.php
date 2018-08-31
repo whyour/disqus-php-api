@@ -280,19 +280,6 @@ function curl_post($url, $fields){
     return json_decode($data);
 }
 
-function forum_format( $forum ){
-    $modText = $forum -> moderatorBadgeText;
-    $avatar = $forum -> avatar -> large -> cache;
-    return (object) array(
-        'founder' => $forum -> founder,
-        'name' => $forum -> name,
-        'url' => $forum -> url,
-        'id' => $forum -> id,
-        'avatar' => substr($avatar, 0, 2) === '//' ? 'https:'.$avatar : $avatar,
-        'moderatorBadgeText' =>  !!$modText ? $modText : '管理员',
-    );
-}
-
 function thread_format( $thread ){
     return (object) array(
         'author' => $thread -> author,
