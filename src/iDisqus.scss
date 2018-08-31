@@ -647,6 +647,7 @@
     }
     .comment-item-body {
         display: flex;
+        margin-bottom: 5px;
     }
     .comment-item-header,
     .comment-item-footer {
@@ -921,109 +922,92 @@
     }
 }
 
-@keyframes disqus-loader-spinner-animation {
-    0% {
-        transform: rotate(0)
+.comment-popular{
+    color: #444;
+    font-size: 14px;
+    margin-top: 20px;
+    width: 100%;
+    .comment-popular-title{
+        font-weight: 700;
+        text-transform: uppercase;
+        color: rgba(34,59,74,.5);
+        margin-bottom: 5px;
     }
-    100% {
-        transform: rotate(360deg)
+    .comment-popular-forumname{
+        color: #413a3a;
     }
-}
+    .comment-popular-content{
 
-.post-list {
-    list-style-type: none;
-    margin: 0;
-    .discovery-main {
-        display: inline-block;
-        color: #444;
-        font-family: "Helvetica Neue", arial, sans-serif;
-        font-size: 14px;
-        clear: both;
-        margin-top: 20px;
-        width: 100%;
-        .discovery-col-header {
-            margin-bottom: .8em;
-        }
-        .discovery-post:nth-child(odd) {
-            margin-right: 4%;
-        }
-        .discovery-post {
-            margin-bottom: 10px;
-            float: left;
+    }
+    .popular-list{
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        .popular-item{
             width: 48%;
+            margin-bottom: 10px;
+            &:nth-child(odd){
+                margin-right: 4%;
+            }
         }
-        a.publisher-anchor-color {
-            color: rgb(0, 136, 204) !important;
+        .popular-item-link{
+            color: #000;
+            &:hover{
+                .popular-item-avatar{
+                    opacity: .8;
+                }
+                .popular-item-name{
+                    color: #aaa;
+                }
+            }
         }
-        .discovery-post h3 {
-            margin-bottom: 4px;
+        .popular-item-title{
             display: block;
-            max-height: 2.5em;
             overflow: hidden;
-        }
-        .discovery-post a > p {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 18.5em;
-        }
-        .discovery-post a.title,
-        .discovery-post h3 {
-            font-size: 16px;
-            font-weight: 500;
-            line-height: 1.25em;
-        }
-        .discovery-post h3 {
-            margin-bottom: 4px;
-            display: block;
-            max-height: 2.5em;
-            overflow: hidden;
-        }
-        .discovery-post a.title,
-        .discovery-post h3 {
-            font-size: 16px;
             font-weight: 700;
-            line-height: 1.25em;
         }
-        .discovery-post .meta {
-            color: #777;
+        .popular-item-desc{
             color: rgba(30,55,70,.4);
-        }
-        .discovery-post .meta li {
-            display: inline;
-            line-height: 1.1em;
             font-weight: 500;
             font-size: 12px;
         }
-        .discovery-post .meta .comments:after {
-            content: '\2022';
-            color: #ccc;
+        .popular-item-post{
+            padding: 5px 0;
+            display: flex;
         }
-        .discovery-post .top-comment {
-            color: #333;
-            display: inline-block;
-            width: 100%;
-            margin-top: 6px;
-            font-size: 14px;
-        }
-        .discovery-post .top-comment img {
+        .popular-item-avatar{
             width: 30px;
             height: 30px;
-            float: left;
-            margin-right: 8px;
-            margin-top: 3px;
-            border-radius: 3px;
+            margin-right: 5px;
+            flex: none;
+            img{
+                display: block;
+                width: 100%;
+                border-radius: 3px;
+            }
         }
-        .discovery-col-header h2 {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: rgba(34,59,74,.5);
+        .popular-item-main{
+            flex: 1;
+            height: 30px;
+            line-height: 15px;
+            overflow: hidden;
+            font-size: 13px;
         }
-        .discovery-col-header h2 strong {
-            color: #413a3a;
+        .popular-item-name{
+            color: rgba(30,55,70,.4);
+            font-weight: 600;
+        }
+        .popular-item-message{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
+}
+
+@keyframes disqus-loader-spinner-animation{
+    0%{transform:rotate(0)}
+    100%{transform:rotate(360deg)}
 }
 
 @media screen and(max-width: 480px) {

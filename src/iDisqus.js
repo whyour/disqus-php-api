@@ -1,11 +1,15 @@
 /*!
  * v 0.2.15
  * 
- * https://github.com/fooleap/disqus-php-api
- *
+ * @author fooleap
+ * @email fooleap@gmail.com
+ * @create 2017-06-17 20:48:25
+ * @update 2018-08-31 13:42:06
+ * @version 0.2.16
  * Copyright 2017-2018 fooleap
  * Released under the MIT license
  */
+require('./iDisqus.scss');
 (function (global) {
     'use strict';
 
@@ -348,6 +352,8 @@
             hours: "%d小时",
             day: "1天",
             days: "%d天",
+            week: "1周",
+            weeks: "%d周",
             month: "1个月",
             months: "%d个月",
             year: "1年",
@@ -370,12 +376,14 @@
             var minutes = seconds / 60;
             var hours = minutes / 60;
             var days = hours / 24;
+            var weeks = days / 7;
+            var months = days / 30;
             var years = days / 365;
 
-            return templates.prefix + ( seconds < 45 && template('seconds', seconds) || seconds < 90 && template('minute', 1) || minutes < 45 && template('minutes', minutes) || minutes < 90 && template('hour', 1) || hours < 24 && template('hours', hours) || hours < 42 && template('day', 1) || days < 30 && template('days', days) || days < 45 && template('month', 1) || days < 365 && template('months', days / 30) || years < 1.5 && template('year', 1) || template('years', years)) + templates.suffix;
+            return templates.prefix + ( seconds < 45 && template('seconds', seconds) || seconds < 90 && template('minute', 1) || minutes < 45 && template('minutes', minutes) || minutes < 90 && template('hour', 1) || hours < 24 && template('hours', hours) || hours < 42 && template('day', 1) || days < 30 && template('days', days) || days < 45 && template('month', 1) || days < 365 && template('months', months) || years < 1.5 && template('year', 1) || template('years', years)) + templates.suffix;
         };
 
-        var elements = _.dom.querySelectorAll('.comment-item-time');
+        var elements = _.dom.querySelectorAll('time[datetime]');
         for (var i in elements) {
             var $this = elements[i];
             if (typeof $this === 'object') {
@@ -461,22 +469,8 @@
             '        </div>\n'+
             '    </div>\n'+
             '    <ul id="comments" class="comment-list"></ul>\n'+
-            '    <a href="javascript:;" class="comment-loadmore">加载更多</a>\n' +
-            '    <div id="placement-bottom" class="disqus-api">\n'+
-            '        <div class="post-list">\n'+
-            '            <div>\n'+
-            '                <div class="discovery-main">\n'+
-            '                    <section class="col-organic">\n'+
-            '                        <header class="discovery-col-header">\n'+
-            '                            <h2>在 <strong>'+ _.opts.forum +'</strong> 上还有</h2>\n'+
-            '                        </header>\n'+
-            '                        <ul class="discovery-posts" id="popular-posts" >\n'+
-            '                        </ul>\n'+
-            '                    </section>\n'+
-            '                </div>\n'+
-            '            </div>\n'+
-            '        </div>\n'+
-            '    </div>\n'+
+            '    <a href="javascript:;" class="comment-loadmore">加载更多</a>\n'+
+            '    <div class="comment-popular"></div>'+
             '</div>\n'+
             '<div class="comment" id="disqus_thread"></div>';
 
@@ -653,83 +647,41 @@
         }
     };
 
-    // 热门评论
+    // 热门话题
     iDisqus.prototype.popular = function(){
         var _ = this;
-        _.opts.popular = document.getElementById('popular-posts');
-        if(!!_.opts.popular){
-            getAjax(
-                _.opts.api + '/popular.php', 
-                function(resp) {
-                    var data = JSON.parse(resp);
-                    var currentUrl = window.location.href;
-                    if(data.code == 0){
-                        var _posts = data.response;
-                        var posts = _posts.filter(function (p) {
-                            return currentUrl !== p.link;
-                        })
-                        var number = posts.length % 2;
-                        if (!number) {
-                            posts.slice(0, posts.length - 1);
-                        }
-                        var postsHtml = '';
-                        if (posts.length % 2 !== 0) {
-                            posts.pop();
-                        }
-                        posts.forEach(function(item){
-                            // postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
-                            postsHtml += 
-                            `
-                                <li class="discovery-post">
-                                    <a class="publisher-anchor-color" href="${item.link}" target="" rel="">
-                                        <header class="discovery-post-header">
-                                            <h3 title="${item.title}">
-                                                <span data-role="discovery-thread-title" class="title line-truncate" data-line-truncate="2">${item.title}</span>
-                                            </h3>
-                                            <ul class="meta">
-                                                <li class="comments">${item.posts}条评论 </li>
-                                                <li class="time">
-                                                    <time class="comment-item-time" datetime="${item.createdAt}"></time>
-                                                </li>
-                                            </ul>
-                                        </header>
-                                        <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
-                                            <img alt="头像" data-role="discovery-avatar" src="${item.author.avatar.cache}">
-                                            <p>
-                                                <span class="user" data-role="discovery-top-comment-author">${item.author.name}</span>
-                                                —
-                                                <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
-                                                    ${item.message}
-                                                </span>
-                                            </p>
-                                        </a> 
-                                    </a>
-                                </li>
-                            `
-                        });
-                        _.opts.popular.innerHTML = postsHtml;
-                        _.timeAgo();
-                    }
-                },function(){
-                    console.log('获取数据失败！')
+        getAjax(
+            _.opts.api + '/popular.php', 
+            function(resp) {
+                var data = JSON.parse(resp);
+                if(data.code == 0){
+                    var threads = data.response;
+                    var popHtml = '';
+                    threads.forEach(function(item){
+                        item.topPost.raw_message = item.topPost.raw_message.replace(/(\@\w+):disqus/,'$1');
+                        popHtml += '<li class="popular-item">'+
+                            '<a class="popular-item-link" href="' + item.link  + '" title="' + item.title + '">'+
+                            '<div class="popular-item-title">' + item.title + '</div>'+
+                            '<div class="popular-item-desc">'+item.posts + '条评论<span class="popular-item-bullet"> • </span><time class="popular-item-time" datetime="' + item.createdAt + '"></time></div></a>'+
+                            '<a class="popular-item-link" href="' + item.link  +'?#comment-' + item.topPost.id + '" title="' + item.topPost.raw_message + '">'+
+                            '<div class="popular-item-post">'+
+                            '<div class="popular-item-avatar"><img src="'+item.topPost.avatar+'" /></div>'+
+                            '<div class="popular-item-main">'+
+                            '<div class="popular-item-name">'+item.topPost.name+'</div>'+
+                            '<div class="popular-item-message">'+item.topPost.raw_message+'</div>'+
+                            '</div>'+
+                            '</div></a>'+
+                            '</li>';
+                    });
+                    popHtml = '<div class="comment-popular-title">在<span class="comment-popular-forumname">'+_.forum.name+'</span>上还有</div><div class="comment-popular-content"><ul class="popular-list">'+popHtml+'</ul></div>';
+                    _.dom.querySelector('.comment-popular').innerHTML = popHtml;
+                    _.timeAgo();
                 }
-            );
-        }
+            },function(){
+                console.log('获取数据失败！')
+            }
+        );
     }
-    /*
-     * 评论详情
-     <a class="top-comment" data-role="discovery-top-comment" href="" target="" rel="">
-        <img alt="头像" data-role="discovery-avatar" src="//a.disquscdn.com/1534292124/images/noavatar92.png">
-        <p>
-            <span class="user" data-role="discovery-top-comment-author">@</span>
-            —
-            <span data-role="discovery-top-comment-snippet" class="line-truncate" data-line-truncate="3">
-                
-            </span>
-        </p>
-    </a> 
-     * 
-     */
 
     // 获取评论列表
     iDisqus.prototype.getlist = function(){
@@ -745,12 +697,13 @@
                     _.stat.offsetTop = d.documentElement.scrollTop || d.body.scrollTop;
                     _.stat.thread = data.thread;
                     _.stat.total = data.cursor.total;
-                    _.opts.avatar = data.forum.avatar;
-                    _.dom.querySelector('.comment-avatar-image').dataset.avatar = data.forum.avatar;
+                    _.forum = data.forum;
+                    _.opts.avatar = _.forum.avatar;
+                    _.dom.querySelector('.comment-avatar-image').dataset.avatar = _.forum.avatar;
                     if( _.user.logged_in == 'false' ){
-                        _.dom.querySelector('.comment-avatar-image').src = data.forum.avatar;
+                        _.dom.querySelector('.comment-avatar-image').src = _.forum.avatar;
                     }
-                    _.opts.badge =  data.forum.moderatorBadgeText;
+                    _.opts.badge =  _.forum.moderatorBadgeText;
                     _.dom.querySelector('#idisqus').classList.remove('loading');
                     _.dom.querySelector('#comment-link').href = data.link;
                     _.dom.querySelector('#comment-count').innerHTML = _.stat.total + ' 条评论';
@@ -786,6 +739,10 @@
                     window.scrollTo(0, _.stat.offsetTop);
 
                     _.timeAgo();
+
+                    if(_.forum.settings.organicDiscoveryEnabled){
+                        _.popular();
+                    }
 
                     if (/^#disqus|^#comment-/.test(location.hash) && !data.cursor.hasPrev && !_.stat.disqusLoaded && !_.stat.loaded) {
                         var el = _.dom.querySelector('#idisqus ' + location.hash)
