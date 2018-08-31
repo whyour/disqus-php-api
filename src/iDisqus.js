@@ -673,7 +673,7 @@ require('./iDisqus.scss');
                             '</div></a>'+
                             '</li>';
                     });
-                    popHtml = '<div class="comment-popular-title">在<span class="comment-popular-forumname">'+_.forum.name+'</span>上还有</div><div class="comment-popular-content"><ul class="popular-list">'+popHtml+'</ul></div>';
+                    popHtml = '<div class="comment-popular-title">在<span class="comment-popular-forumname">'+_.opts.forum+'</span>上还有</div><div class="comment-popular-content"><ul class="popular-list">'+popHtml+'</ul></div>';
                     _.dom.querySelector('.comment-popular').innerHTML = popHtml;
                     _.timeAgo();
                 }
