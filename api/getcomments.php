@@ -1,13 +1,13 @@
 <?php
 /**
  * 获取评论列表
- * 暂以 15 条每页，倒序为准
+ * 暂以 50 条每页，倒序为准
  *
  * @param link   页面链接
  * @param cursor 当前评论位置
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-06-13 22:10:09
+ * @version  2018-08-30 01:34:59
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -18,7 +18,7 @@ $thread = 'ident:'.$_GET['ident'];
 $fields = (object) array(
     'forum' => DISQUS_SHORTNAME,
     'cursor' => $_GET['cursor'],
-    'limit' => 15,
+    'limit' => 50,
     'order' => 'desc',
     'thread' => $thread
 );
@@ -34,7 +34,13 @@ if( $data -> code == 2 ){
 
 }
 
-$detail = getThreadDataByCache($thread);
+$fields = (object) array(
+    'forum' => DISQUS_SHORTNAME,
+    'thread' => $thread
+);
+
+$curl_url = '/api/3.0/threads/details.json?';
+$detail = curl_get($curl_url, $fields);
 
 $posts = array();
 if (is_array($data -> response) || is_object($data -> response)){
@@ -43,15 +49,15 @@ if (is_array($data -> response) || is_object($data -> response)){
     }
 }
 
-$data -> cursor -> total = $detail -> posts;
+$data -> cursor -> total = $detail -> response -> posts;
 
 $output = $data -> code == 0 ? (object) array(
     'code' => 0,
     'cursor' => $data -> cursor,
     'forum' => $cache -> get('forum'),
-    'link' => 'https://disqus.com/home/discussion/'.DISQUS_SHORTNAME.'/'.$detail -> slug.'/?l=zh',
+    'link' => 'https://disqus.com/home/discussion/'.DISQUS_SHORTNAME.'/'.$detail -> response -> slug.'/?l=zh',
     'response' => $posts,
-    'thread' => $detail -> id
+    'thread' => thread_format($detail -> response)
 ) : $data;
 
 print_r(json_encode($output));

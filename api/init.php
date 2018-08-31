@@ -3,7 +3,7 @@
  * 获取权限，简单封装常用函数
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-06-13 21:47:04
+ * @version  2018-08-31 13:26:09
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -15,7 +15,7 @@ require_once('emoji.php');
 error_reporting(E_ERROR | E_PARSE);
 header('Content-type:text/json');
 header('Access-Control-Allow-Credentials: true');
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';  
 $ipRegex = '((2[0-4]|1\d|[1-9])?\d|25[0-5])(\.(?1)){3}';
 function domain($url){
     preg_match('/[a-z0-9\-]{1,63}\.[a-z\.]{2,6}$/', parse_url($url, PHP_URL_HOST), $_domain_tld);
@@ -144,7 +144,7 @@ function getAccessToken($fields){
     $payload['iat'] = $_SERVER['REQUEST_TIME'];
     $payload['exp'] = $expires;
 
-    setcookie('access_token', $jwt -> encode($payload, DISQUS_PASSWORD), $expires, substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT'])), $_SERVER['HTTP_HOST'], false, true);
+    setcookie('access_token', $jwt -> encode($payload, DISQUS_PASSWORD), $expires, substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT'])), $_SERVER['HTTP_HOST'], false, true); 
 
     return $access_token;
 }
@@ -161,8 +161,16 @@ function encodeURIComponent($str){
     return strtr(rawurlencode($str), $replacers);
 }
 
+function email_format($email){
+    $index = strrpos($email, '@');
+    $start = $index > 1 ? 1 : 0;
+    $length = $index - $start;
+    $star = str_repeat('*', $length);
+    return substr_replace($email, $star, $start, $length);
+}
+
 function fields_format($fields){
-    foreach($fields as $key=>$value) {
+    foreach($fields as $key=>$value) { 
         if (is_array($value)) {
             foreach( $value as $item ){
                 $fields_string .= encodeURIComponent($key).'='.encodeURIComponent($item).'&';
@@ -192,7 +200,7 @@ function curl_get($url, $fields){
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_FOLLOWLOCATION => 1,
         CURLOPT_HEADER => 0,
-        CURLOPT_RETURNTRANSFER => 1
+        CURLOPT_RETURNTRANSFER => 1 
     );
 
     $curl = curl_init();
@@ -272,11 +280,34 @@ function curl_post($url, $fields){
     return json_decode($data);
 }
 
+function thread_format( $thread ){
+    return (object) array(
+        'author' => $thread -> author,
+        'dislikes' => $thread -> dislikes,
+        'id' => $thread -> id,
+        'identifiers' => $thread -> identifiers,
+        'likes' => $thread -> likes,
+        'link' => $thread -> link,
+        'posts' => $thread -> posts,
+        'title' => $thread -> clean_title,
+        'createdAt' => $thread -> createdAt.'+00:00'
+    );
+}
+
+
 function post_format( $post ){
     global $emoji, $cache;
 
+    $author = $post -> author;
+
     // 是否是管理员
-    $isMod = ($post -> author -> username == DISQUS_USERNAME || $post -> author -> email == DISQUS_EMAIL ) && $post -> author -> isAnonymous == false ? true : false;
+    $isMod = $author -> username == DISQUS_USERNAME ? true : false;
+
+    $uid = md5($author -> name.$author -> email);
+
+    // 访客数据
+    $authors = $cache -> get('authors');
+    $email = isset($authors -> $uid) ? $authors -> $uid : $author -> name;
 
     // 访客指定 Gravatar 头像
     $avatar = $cache -> get('forum') -> avatar;
@@ -284,20 +315,21 @@ function post_format( $post ){
     if( defined('GRAVATAR_DEFAULT') ){
         $avatar_default = GRAVATAR_DEFAULT;
     } else {
-        $avatar_default = strpos($avatar, 'https') !== false ? $avatar : 'https:'.$avatar;
+        $avatar_default = substr($avatar, 0, 2) === '//' ? 'https:'.$avatar : $avatar;
     }
 
-    $avatar_url = GRAVATAR_CDN.md5($post -> author -> name).'?d='.$avatar_default.'&s=92&f=y';
-    $post -> author -> avatar -> cache = $post -> author -> isAnonymous ? $avatar_url : $post -> author -> avatar -> cache;
+    if($author -> isAnonymous){
+        $author -> avatar -> cache = GRAVATAR_CDN.md5($email).'?d='.$avatar_default.'&s=92';
+    }
 
     // 表情
     $post -> message = $emoji -> toImage($post -> message);
 
     // 链接
-    $post -> author -> url = !!$post -> author -> url ? $post -> author -> url : $post -> author -> profileUrl;
+    $author -> url = !!$author -> url ? $author -> url : $author -> profileUrl;
 
     $urlPat = '/<a.*?href="(.*?[disq\.us][disqus\.com][disquscdn\.com][media.giphy\.com].*?)".*?>(.*?)<\/a>/mi';
-    preg_match_all($urlPat, $post -> message, $urlArr);
+    preg_match_all($urlPat, $post -> message, $urlArr);    
     if( count($urlArr[0]) > 0 ){
         $linkArr = array();
         foreach ( $urlArr[1] as $item => $urlItem){
@@ -305,7 +337,7 @@ function post_format( $post ){
             if(preg_match('/^(http|https):\/\/disq\.us/i', $urlItem)){
                 parse_str(parse_url($urlItem,PHP_URL_QUERY),$out);
                 $linkArr[$item] = '<a href="'.join(':', explode(':',$out['url'],-1)).'" target="_blank" title="'.$urlArr[2][$item].'">'.$urlArr[2][$item].'</a>';
-                // 去掉图片链接
+            // 去掉图片链接
             } elseif ( preg_match('/^(http|https):\/\/.*(disquscdn.com|media.giphy.com).*\.(jpg|gif|png)$/i', $urlItem) ){
                 $linkArr[$item] = '';
             } elseif ( strpos($urlItem, 'https://disqus.com/by/') !== false ){
@@ -319,7 +351,7 @@ function post_format( $post ){
 
     $imgArr = array();
     foreach ( $post -> media as $key => $image ){
-
+        
         $imgArr[$key] = (object) array(
             'thumbUrl' => $image -> thumbnailUrl,
             'thumbWidth' => $image -> thumbnailWidth,
@@ -336,101 +368,31 @@ function post_format( $post ){
     // 是否已删除
     if(!!$post -> isDeleted){
         $post -> message = '';
-        $post -> author -> avatar -> cache =  $avatar;
-        $post -> author -> username = '';
-        $post -> author -> name = '';
-        $post -> author -> url = '';
+        $author -> avatar -> cache =  $avatar;
+        $author -> username = '';
+        $author -> name = '';
+        $author -> url = '';
         $isMod = '';
     }
 
-    $data = array(
-        'avatar' => $post -> author -> avatar -> cache,
+    return (object) array( 
+        'avatar' => $author -> avatar -> cache,
         'isMod' => $isMod,
         'isDeleted' => $post -> isDeleted,
-        'username' => $post -> author -> username,
+        'username' => $author -> username,
         'createdAt' => $post -> createdAt.'+00:00',
         'id' => $post -> id,
         'media' => $imgArr,
         'message' => $post -> message,
-        'name' => $post -> author -> name,
-        'parent' => $post -> parent,
-        'url' => $post -> author -> url
+        'raw_message' => $post -> raw_message,
+        'name' => $author -> name,
+        'url' => $author -> url,
+        'parent' => $post -> parent
     );
-
-    return $data;
-}
-
-function getForumData(){
-
-    global $cache;
-
-    $fields = (object) array(
-        'forum' => DISQUS_SHORTNAME
-    );
-    $curl_url = '/api/3.0/forums/details.json?';
-    $data = curl_get($curl_url, $fields);
-    $modText = $data -> response -> moderatorBadgeText;
-    $forum = array(
-        'founder' => $data -> response -> founder,
-        'name' => $data -> response -> name,
-        'url' => $data -> response -> url,
-        'avatar' => $data -> response -> avatar -> large -> cache,
-        'moderatorBadgeText' =>  !!$modText ? $modText : 'Mod',
-        'expires' => time() + 3600*24
-    );
-    if( $data -> code == 0 ){
-        $cache -> update($forum,'forum');
-    }
-}
-
-function updateThreadData($thread){
-
-    global $cache;
-
-    try {
-        $fields = (object) array(
-            'forum' => DISQUS_SHORTNAME,
-            'thread' => $thread
-        );
-
-        $curl_url = '/api/3.0/threads/details.json?';
-        $detail = curl_get($curl_url, $fields);
-
-        $id = md5($thread);
-        $data = array();
-        if($detail -> code == 0){
-            $data[$id] = array(
-                'id' => $detail -> response -> id,
-                'slug' => $detail -> response -> slug,
-                'posts' => $detail -> response -> posts,
-                'expires' => time() + 3600*6
-            );
-
-            $cache -> update($data,'threads');
-
-            return (object)$data[$id];
-        }
-    } catch (Exception $e) {
-        return false;
-    }
-}
-
-function getThreadDataByCache($thread){
-
-    global $cache;
-
-    $threads = $cache -> get('threads');
-
-    $id = md5($thread);
-    if(isset($threads -> $id) && time() < $threads -> $id -> expires){
-        return $threads -> $id;
-    }
-
-    return updateThreadData($thread);
 }
 
 // 取得当前目录
-function getCurrentDir(){
+function getCurrentDir (){
 
     $isSecure = false;
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
@@ -445,22 +407,67 @@ function getCurrentDir(){
 
 }
 
-// 评论无限极分类
-function getComments($data, $pid = 0, &$result = array()){
-    foreach ($data as $key => $val) {
-        if ($pid == $val['parent']) {
-            $result[] = $val;
-            getComments($data, $val['id'], $result);
-        }
-    }
-
-    return $result;
-}
-
 if( time() > strtotime($cache -> get('cookie') -> expires) || !$cache -> get('cookie') ){
     adminLogin();
 }
 
-if( time() > $cache -> get('forum') -> expires || !$cache -> get('forum')){
-    getForumData();
+class Forum {
+    public $founder;
+    public $name;
+    public $url;
+    public $id;
+    public $avatar;
+    public $moderatorBadgeText = '管理员';
+    public $settings;
+    public $expires;
+
+    public function __construct(){
+    }
+
+    protected static function convert($oForum){
+        $forum = new self();
+        $avatar = $oForum -> avatar -> large -> cache;
+        $modText = $oForum -> moderatorBadgeText;
+        $forum->moderatorBadgeText = !!$modText ? $modText : '管理员';
+        $forum->founder = $oForum -> founder;
+        $forum->name = $oForum -> name;
+        $forum->url = $oForum -> url;
+        $forum->id = $oForum -> id;
+        $forum->avatar = substr($avatar, 0, 2) === '//' ? 'https:'.$avatar : $avatar;
+        $forum->settings = $oForum -> settings;
+        return $forum;
+    }
+
+    protected static function isOld($cForum){
+        if(!$cForum){
+            return true;
+        }
+        $forum = new self();
+        if(count(array_diff_key((array)$forum, (array)$cForum)) != 0){
+            return true;
+        }
+        if( $cForum -> expires < time() ){
+            return true;
+        }
+        return false;
+    }
+
+    public function update($cache){
+        if(self::isOld($cache -> get('forum'))){
+            $fields = (object) array(
+                'forum' => DISQUS_SHORTNAME
+            );
+            $curl_url = '/api/3.0/forums/details.json?';
+            $data = curl_get($curl_url, $fields);
+
+            if( $data -> code == 0 ){
+                $forum = self::convert($data -> response);
+                $forum -> expires = time() + 3600*2;
+                $cache -> update($forum,'forum');
+            }
+        }
+    }
 }
+
+$forum = new Forum();
+$forum -> update($cache);
