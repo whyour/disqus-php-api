@@ -101,7 +101,9 @@ if( $data -> code == 0 ){
             $_SESSION[$code] = $pEmail;
             $output['verifyCode'] = $code;
         }
+        print_r(json_encode($output));
     }
+
 
     // 匿名用户暂存邮箱号
     if( !isset($access_token) ){

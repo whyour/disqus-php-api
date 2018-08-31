@@ -848,7 +848,8 @@ require('./iDisqus.scss');
             // 删除
             $this.querySelector('.comment-item-delete').addEventListener('click',function(e){
                 var postData = {
-                    id: post.id
+                    id: post.id,
+                    identifier: _.opts.identifier
                 }
                 var delDom = e.currentTarget;
                 delDom.innerHTML = '删除中';
@@ -1425,6 +1426,7 @@ require('./iDisqus.scss');
                 name: _.user.name,
                 email: _.user.email,
                 url:  _.user.url,
+                identifier: _.opts.identifier
             }
             postAjax( _.opts.api + '/postcomment.php', postData, function(resp){
                 var data = JSON.parse(resp);
