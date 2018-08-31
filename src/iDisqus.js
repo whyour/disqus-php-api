@@ -1,3 +1,14 @@
+/*!
+ * 
+ * @author fooleap
+ * @email fooleap@gmail.com
+ * @create 2017-06-17 20:48:25
+ * @update 2018-08-31 13:42:06
+ * @version 0.2.16
+ * Copyright 2017-2018 fooleap
+ * Released under the MIT license
+ */
+require('./iDisqus.scss');
 (function (global) {
     'use strict';
 
@@ -106,8 +117,6 @@
                 [].forEach.call(boxarr,function(item){
                     if(_.type == '1'){
                         item.querySelector('.comment-form-wrapper').classList.add('logged-in');
-                        _.dom.querySelector('.comment-header').classList.add('logged-in');
-                        _.dom.querySelector('#user-name').innerHTML = _.name;
                     }
                     item.querySelector('.comment-form-name').value = _.name;
                     item.querySelector('.comment-form-email').value = _.email;
@@ -117,8 +126,6 @@
             } else {
                 [].forEach.call(boxarr,function(item){
                     item.querySelector('.comment-form-wrapper').classList.remove('logged-in');
-                    _.dom.querySelector('.comment-header').classList.remove('logged-in');
-                    _.dom.querySelector('#user-name').innerHTML = '';
                     item.querySelector('.comment-form-name').value = '';
                     item.querySelector('.comment-form-email').value = '';
                     item.querySelector('.comment-form-url').value = '';
@@ -191,7 +198,7 @@
 
         // 配置
         _.opts = typeof(arguments[1]) == 'object' ? arguments[1] : arguments[0];
-        _.dom =  d.getElementById(typeof(arguments[0]) == 'string' ? arguments[0] : 'comments');
+        _.dom =  d.getElementById(typeof(arguments[0]) == 'string' ? arguments[0] : 'comment');
         _.opts.api = _.opts.api.slice(-1) == '/' ? _.opts.api.slice(0,-1) : _.opts.api;
         _.opts.site = _.opts.site || location.origin;
         if(!!_.opts.url){
@@ -326,6 +333,7 @@
         // 自动初始化
         if( !!_.opts.init ){
             _.init();
+            //console.log(_);
         }
     }
 
@@ -343,6 +351,8 @@
             hours: "%d小时",
             day: "1天",
             days: "%d天",
+            week: "1周",
+            weeks: "%d周",
             month: "1个月",
             months: "%d个月",
             year: "1年",
@@ -365,12 +375,14 @@
             var minutes = seconds / 60;
             var hours = minutes / 60;
             var days = hours / 24;
+            var weeks = days / 7;
+            var months = days / 30;
             var years = days / 365;
 
-            return templates.prefix + ( seconds < 45 && template('seconds', seconds) || seconds < 90 && template('minute', 1) || minutes < 45 && template('minutes', minutes) || minutes < 90 && template('hour', 1) || hours < 24 && template('hours', hours) || hours < 42 && template('day', 1) || days < 30 && template('days', days) || days < 45 && template('month', 1) || days < 365 && template('months', days / 30) || years < 1.5 && template('year', 1) || template('years', years)) + templates.suffix;
+            return templates.prefix + ( seconds < 45 && template('seconds', seconds) || seconds < 90 && template('minute', 1) || minutes < 45 && template('minutes', minutes) || minutes < 90 && template('hour', 1) || hours < 24 && template('hours', hours) || hours < 42 && template('day', 1) || days < 30 && template('days', days) || days < 45 && template('month', 1) || days < 365 && template('months', months) || years < 1.5 && template('year', 1) || template('years', years)) + templates.suffix;
         };
 
-        var elements = _.dom.querySelectorAll('.comment-item-time');
+        var elements = _.dom.querySelectorAll('time[datetime]');
         for (var i in elements) {
             var $this = elements[i];
             if (typeof $this === 'object') {
@@ -388,6 +400,7 @@
     iDisqus.prototype.init = function(){
         var _ = this;
         if(!_.dom){
+            //console.log('该页面没有评论框！');
             return
         }
         // 表情
@@ -395,20 +408,14 @@
         _.emojiList.forEach(function(item){
             emojiList += '<li class="emojione-item" title="'+ item.title+'" data-code=":'+item.code+':"><img class="emojione-item-image" src="'+_.opts.emojiPath + item.unicode+'.png" /></li>';
         })
-        _.dom.innerHTML = '<div class="comments loading" id="idisqus">\n'+
-            '    <div class="loading-container" data-tip="正在加载评论…"><svg class="loading-bg" width="72" height="72" viewBox="0 0 720 720" version="1.1" xmlns="http://www.w3.org/2000/svg"><path class="ring" fill="none" stroke="#9d9ea1" d="M 0 -260 A 260 260 0 1 1 -80 -260" transform="translate(400,400)" stroke-width="50" /><polygon transform="translate(305,20)" points="50,0 0,100 18,145 50,82 92,145 100,100" style="fill:#9d9ea1"/></svg></div>\n'+
-            '    <div class="comment-header">\n' +
-            '        <span class="comment-header-item header-border" id="comment-count">评论</span>\n' +
-            '        <a class="comment-header-item" id="comment-link" target="_blank" href="https://disqus.com/home/discussion/fanhaobai/php_codesniffer_s_blog/?l=zh">在线社区</a>\n' +
-            '        <a class="comment-header-item user-menu" href="#">登录</a>\n' +
-            '        <span class="comment-header-item" id="user-name"></span>\n' +
-            '        <a class="comment-header-item" id="comment-ibox" target="_blank" href="https://disqus.com/home/inbox/"><i class="icon-comment"></i><span class="comment-header-item" id="ibox-count">1</span></a>\n' +
-            '    </div>\n'+
+        _.dom.innerHTML = '<div class="comment loading" id="idisqus">\n'+
+            '    <div class="loading-container" data-tip="正在加载评论……"><svg class="loading-bg" width="72" height="72" viewBox="0 0 720 720" version="1.1" xmlns="http://www.w3.org/2000/svg"><path class="ring" fill="none" stroke="#9d9ea1" d="M 0 -260 A 260 260 0 1 1 -80 -260" transform="translate(400,400)" stroke-width="50" /><polygon transform="translate(305,20)" points="50,0 0,100 18,145 50,82 92,145 100,100" style="fill:#9d9ea1"/></svg></div>\n'+
+            '    <div class="comment-header"><span class="comment-header-item" id="comment-count">评论</span><a target="_blank" class="comment-header-item" id="comment-link">Disqus 讨论区</a></div>\n'+
             '    <div class="comment-box">\n'+
             '        <div class="comment-avatar avatar"><img class="comment-avatar-image" src="//a.disquscdn.com/images/noavatar92.png" data-avatar="//a.disquscdn.com/images/noavatar92.png"></div>\n'+
             '        <div class="comment-form">\n'+
             '            <div class="comment-form-wrapper">\n'+
-            '                <textarea class="comment-form-textarea" placeholder="加入讨论…"></textarea>\n'+
+            '                <textarea class="comment-form-textarea" placeholder="加入讨论……"></textarea>\n'+
             '                <div class="comment-form-alert"></div>\n'+
             '                <div class="comment-image">\n'+
             '                    <ul class="comment-image-list"></ul>\n'+
@@ -449,7 +456,7 @@
             '                                <path d="M128.152728 526.436804l112.450095 112.450095c6.985088 6.985088 19.567661 6.985088 26.552749 0l26.561959-26.561959c6.985088-6.985088 6.985088-19.567661 0-26.552749l-34.925441-34.925441L494.168889 550.84675c10.477632 0 18.850323-8.372691 18.850323-18.850323l0-37.719066c0-10.477632-8.372691-18.850323-18.850323-18.850323L258.754229 475.427036l34.925441-34.925441c6.985088-6.985088 6.985088-19.567661 0-26.552749l-26.561959-26.524097c-6.985088-6.985088-19.567661-6.985088-26.552749 0L128.152728 499.875868C120.431883 506.859933 120.431883 519.451716 128.152728 526.436804z"></path>\n'+
             '                            </svg>\n'+
             '                        </label>\n'+
-            '                        <button class="comment-form-submit" title="发表">\n'+
+            '                        <button class="comment-form-submit">\n'+
             '                            <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200">\n'+
             '                                <path d="M565.747623 792.837176l260.819261 112.921839 126.910435-845.424882L66.087673 581.973678l232.843092 109.933785 562.612725-511.653099-451.697589 563.616588-5.996574 239.832274L565.747623 792.837176z" fill="#ffffff"></path>\n'+
             '                            </svg>\n'+
@@ -462,11 +469,12 @@
             '    </div>\n'+
             '    <ul id="comments" class="comment-list"></ul>\n'+
             '    <a href="javascript:;" class="comment-loadmore">加载更多</a>\n'+
+            '    <div class="comment-popular"></div>'+
             '</div>\n'+
-            '<div class="comments" id="disqus_thread"></div>';
+            '<div class="comment" id="disqus_thread"></div>';
 
         _.user = new User(_.dom,_.opts);
-        _.box = _.dom.querySelector('.comment-box').outerHTML.replace(/<label class="comment-actions-label exit"(.|\n)*<\/label>\n/,'').replace('comment-form-wrapper','comment-form-wrapper editing').replace(/加入讨论…/,'');
+        _.box = _.dom.querySelector('.comment-box').outerHTML.replace(/<label class="comment-actions-label exit"(.|\n)*<\/label>\n/,'').replace('comment-form-wrapper','comment-form-wrapper editing').replace(/加入讨论……/,'');
         _.handle = {
             logout: _.user.logout.bind(_),
             login: _.user.login.bind(_),
@@ -527,18 +535,18 @@
             return;
         }
         if(!_.stat.disqusLoaded ){
-            _tip = '尝试连接 Disqus…';
+            _tip = '尝试连接 Disqus……';
 
             var s = d.createElement('script');
             s.src = '//'+_.opts.forum+'.disqus.com/embed.js';
             s.dataset.timestamp = Date.now();
             s.onload = function(){
                 _.stat.disqusLoaded = true;
-                _tip = '连接成功，加载 Disqus 评论框…'
+                _tip = '连接成功，加载 Disqus 评论框……'
             } 
             s.onerror = function(){
                 if( _.opts.mode == 1){
-                    _tip = '连接失败，加载简易评论框…';
+                    _tip = '连接失败，加载简易评论框……';
                     _.getlist();
                 }
             }
@@ -554,13 +562,13 @@
             xhr.ontimeout = function () {
                 xhr.abort();
                 if( _.opts.mode == 1){
-                    _tip = '连接超时，加载简易评论框…';
+                    _tip = '连接超时，加载简易评论框……';
                     _.getlist();
                 }
             }
             xhr.onerror = function() {
                 if( _.opts.mode == 1){
-                    _tip = '连接失败，加载简易评论框…';
+                    _tip = '连接失败，加载简易评论框……';
                     _.getlist();
                 }
             }
@@ -602,7 +610,6 @@
         _.addListener('comment-form-email', 'blur',  _.handle.verify);
         _.addListener('comment-form-submit', 'click',  _.handle.post);
         _.addListener('comment-form-login', 'click',  _.handle.login);
-        _.addListener('user-menu', 'click',  _.handle.login);
         _.addListener('comment-image-input', 'change',  _.handle.upload);
         _.addListener('emojione-item', 'click', _.handle.field);
     }
@@ -639,27 +646,40 @@
         }
     };
 
-    // 热门评论
+    // 热门话题
     iDisqus.prototype.popular = function(){
         var _ = this;
-        if(!!_.opts.popular){
-            getAjax(
-                _.opts.api + '/popular.php', 
-                function(resp) {
-                    var data = JSON.parse(resp);
-                    if(data.code == 0){
-                        var posts = data.response;
-                        var postsHtml = '';
-                        posts.forEach(function(item){
-                            postsHtml += '<li><a href="' + item.link.replace(_.opts.site, '') + '" title="' + item.title + '">' + item.title + '</a></li>';
-                        });
-                        _.opts.popular.innerHTML = postsHtml;
-                    }
-                },function(){
-                    console.log('获取数据失败！')
+        getAjax(
+            _.opts.api + '/popular.php', 
+            function(resp) {
+                var data = JSON.parse(resp);
+                if(data.code == 0){
+                    var threads = data.response;
+                    var popHtml = '';
+                    threads.forEach(function(item){
+                        item.topPost.raw_message = item.topPost.raw_message.replace(/(\@\w+):disqus/,'$1');
+                        popHtml += '<li class="popular-item">'+
+                            '<a class="popular-item-link" href="' + item.link  + '" title="' + item.title + '">'+
+                            '<div class="popular-item-title">' + item.title + '</div>'+
+                            '<div class="popular-item-desc">'+item.posts + '条评论<span class="popular-item-bullet"> • </span><time class="popular-item-time" datetime="' + item.createdAt + '"></time></div></a>'+
+                            '<a class="popular-item-link" href="' + item.link  +'?#comment-' + item.topPost.id + '" title="' + item.topPost.raw_message + '">'+
+                            '<div class="popular-item-post">'+
+                            '<div class="popular-item-avatar"><img src="'+item.topPost.avatar+'" /></div>'+
+                            '<div class="popular-item-main">'+
+                            '<div class="popular-item-name">'+item.topPost.name+'</div>'+
+                            '<div class="popular-item-message">'+item.topPost.raw_message+'</div>'+
+                            '</div>'+
+                            '</div></a>'+
+                            '</li>';
+                    });
+                    popHtml = '<div class="comment-popular-title">在<span class="comment-popular-forumname">'+_.forum.name+'</span>上还有</div><div class="comment-popular-content"><ul class="popular-list">'+popHtml+'</ul></div>';
+                    _.dom.querySelector('.comment-popular').innerHTML = popHtml;
+                    _.timeAgo();
                 }
-            );
-        }
+            },function(){
+                console.log('获取数据失败！')
+            }
+        );
     }
 
     // 获取评论列表
@@ -676,12 +696,13 @@
                     _.stat.offsetTop = d.documentElement.scrollTop || d.body.scrollTop;
                     _.stat.thread = data.thread;
                     _.stat.total = data.cursor.total;
-                    _.opts.avatar = data.forum.avatar;
-                    _.dom.querySelector('.comment-avatar-image').dataset.avatar = data.forum.avatar;
+                    _.forum = data.forum;
+                    _.opts.avatar = _.forum.avatar;
+                    _.dom.querySelector('.comment-avatar-image').dataset.avatar = _.forum.avatar;
                     if( _.user.logged_in == 'false' ){
-                        _.dom.querySelector('.comment-avatar-image').src = data.forum.avatar;
+                        _.dom.querySelector('.comment-avatar-image').src = _.forum.avatar;
                     }
-                    _.opts.badge =  data.forum.moderatorBadgeText;
+                    _.opts.badge =  _.forum.moderatorBadgeText;
                     _.dom.querySelector('#idisqus').classList.remove('loading');
                     _.dom.querySelector('#comment-link').href = data.link;
                     _.dom.querySelector('#comment-count').innerHTML = _.stat.total + ' 条评论';
@@ -718,6 +739,10 @@
 
                     _.timeAgo();
 
+                    if(_.forum.settings.organicDiscoveryEnabled){
+                        _.popular();
+                    }
+
                     if (/^#disqus|^#comment-/.test(location.hash) && !data.cursor.hasPrev && !_.stat.disqusLoaded && !_.stat.loaded) {
                         var el = _.dom.querySelector('#idisqus ' + location.hash)
                         if( !!el ){
@@ -730,7 +755,7 @@
                     _.create();
                 }
             },function(){
-                console.log('获取数据失败，请检查服务器设置。')
+                alert('获取数据失败，请检查服务器设置。')
             }
         );
     }
@@ -822,7 +847,8 @@
             // 删除
             $this.querySelector('.comment-item-delete').addEventListener('click',function(e){
                 var postData = {
-                    id: post.id
+                    id: post.id,
+                    identifier: _.opts.identifier
                 }
                 var delDom = e.currentTarget;
                 delDom.innerHTML = '删除中';
@@ -832,15 +858,15 @@
                         if(data.response.isDeleted == true){
                             $this.outerHTML = '';
                         } else {
-                            console.log(data.response.message);
+                            alert(data.response.message);
                             $this.querySelector('.comment-item-manage').outerHTML = '';
                         }
                     } else if (data.code === 2) {
-                        console.log(data.response);
+                        alert(data.response);
                         $this.querySelector('.comment-item-manage').outerHTML = '';
                     }
                 }, function(){
-                    console.log('删除出错，请稍后重试');
+                    alert('删除出错，请稍后重试');
                 })
                 clearTimeout(postEdit);
             }, false)
@@ -1073,6 +1099,9 @@
         var $name = box.querySelector('.comment-form-name');
         var $email = box.querySelector('.comment-form-email');
         var alertmsg = box.querySelector('.comment-form-alert');
+        if($email.value == ''){
+            return;
+        }
         getAjax(
             _.opts.api + '/getgravatar.php?email=' + $email.value + '&name=' + $name.value,
             function(resp) {
@@ -1292,7 +1321,7 @@
             }
 
             if(!_.stat.message && !_.stat.mediaHtml){
-                _.box = _.dom.querySelector('.comment-box').outerHTML.replace(/<label class="comment-actions-label exit"(.|\n)*<\/label>\n/,'').replace('comment-form-wrapper','comment-form-wrapper editing').replace(/加入讨论…/,'');
+                _.box = _.dom.querySelector('.comment-box').outerHTML.replace(/<label class="comment-actions-label exit"(.|\n)*<\/label>\n/,'').replace('comment-form-wrapper','comment-form-wrapper editing').replace(/加入讨论……/,'');
             }
 
             if( media.length == 0 && /^\s*$/i.test(message)){
@@ -1390,12 +1419,13 @@
             })
         } else {
             var postData = {
-                thread:  _.stat.thread,
+                thread:  _.stat.thread.id,
                 parent: parentId,
                 message: message,
                 name: _.user.name,
                 email: _.user.email,
                 url:  _.user.url,
+                identifier: _.opts.identifier
             }
             postAjax( _.opts.api + '/postcomment.php', postData, function(resp){
                 var data = JSON.parse(resp);
@@ -1407,6 +1437,18 @@
                     post.isPost = true;
                     _.load(post);
                     _.timeAgo();
+                    if(!!data.verifyCode){
+                        var postData = {
+                            post: JSON.stringify(post),
+                            thread: JSON.stringify(data.thread),
+                            parent: JSON.stringify(data.parent),
+                            code: data.verifyCode
+                        }
+                        // 异步发送邮件
+                        postAjax( _.opts.api + '/sendemail.php', postData, function(resp){
+                            console.info('邮件发送成功！');
+                        })
+                    }
                 } else if (data.code === 2) {
                     alertmsg.innerHTML = data.response;
                     _.dom.querySelector('.comment-item[data-id="preview"]').outerHTML = '';
@@ -1490,7 +1532,7 @@
     iDisqus.prototype.create = function(){
         var _ = this;
         if(_.opts.autoCreate){
-            _.dom.querySelector('.loading-container').dataset.tip = '正在创建 Thread…';
+            _.dom.querySelector('.loading-container').dataset.tip = '正在创建 Thread……';
             var postData = {
                 url: _.opts.link,
                 identifier: _.opts.identifier,
@@ -1531,28 +1573,29 @@
         postAjax( _.opts.api + '/createthread.php', postData, function(resp){
             var data = JSON.parse(resp);
             if( data.code === 0 ) {
-                setTimeout(function(){_.getlist();},100);
+                alert('创建 Thread 成功，刷新后便可愉快地评论了！');
+                setTimeout(function(){location.reload();},2000);
             } else if( data.code === 2 ) {
                 if (data.response.indexOf('A thread already exists with link') > -1) {
-                    console.log(data.response.replace('A thread already exists with link,', '已存在此链接的相关 Thread，'));
+                    alert(data.response.replace('A thread already exists with link,', '已存在此链接的相关 Thread，'));
                     return;
                 }
                 if (data.response.indexOf('Invalid URL') > -1) {
-                    console.log('参数错误，无效的\'URL\'');
+                    alert('参数错误，无效的\'URL\'');
                     return;
                 }
                 if (data.response.indexOf('Invalid slug') > -1) {
-                    console.log('参数错误，无效的\'slug\'');
+                    alert('参数错误，无效的\'slug\'');
                     return;
                 }
-                console.log(data.response);
+                alert(data.response);
                 return;
             } else { 
-                console.log(data.response);
+                alert(data.response);
                 return;
             }
         }, function(){
-            console.log('创建 Thread 出错，请稍后重试！');
+            alert('创建 Thread 出错，请稍后重试！');
         })
     }
 

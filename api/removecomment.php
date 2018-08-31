@@ -54,6 +54,7 @@ if( $data->response->isDeleted ){
                 'message' => '删除成功'
             )
         );
+
     } else {
         // 十分钟外
         $output = array( 
@@ -67,3 +68,6 @@ if( $data->response->isDeleted ){
 }
 
 print_r(json_encode($output));
+
+fastcgi_finish_request();
+updateThreadData("ident:{$_POST['identifier']}");
