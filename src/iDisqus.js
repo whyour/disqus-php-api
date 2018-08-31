@@ -732,6 +732,11 @@ require('./iDisqus.scss');
                         _.stat.next = null;
                         loadmore.classList.add('hide');
                     }
+
+                    if(_.forum.settings.organicDiscoveryEnabled){
+                        _.related();
+                    }
+                    
                     if (posts.length == 0) {
                         return;
                     }
@@ -739,10 +744,6 @@ require('./iDisqus.scss');
                     window.scrollTo(0, _.stat.offsetTop);
 
                     _.timeAgo();
-
-                    if(_.forum.settings.organicDiscoveryEnabled){
-                        _.related();
-                    }
 
                     if (/^#disqus|^#comment-/.test(location.hash) && !data.cursor.hasPrev && !_.stat.disqusLoaded && !_.stat.loaded) {
                         var el = _.dom.querySelector('#idisqus ' + location.hash)
