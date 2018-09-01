@@ -35,6 +35,7 @@ $debug = '';
 function sendEmail($thread, $pPost, $rPost, $pEmail){
     global $cache;
 
+    $date = date('Y-m-d H:i:s');
     $forum = $cache -> get('forum');
     $forumName = $forum -> name;
     $forumUrl = $forum -> url;
@@ -44,16 +45,30 @@ function sendEmail($thread, $pPost, $rPost, $pEmail){
 
     $pId = $pPost -> id;
     $pName = $pPost -> name;
-    $pMessage = $pPost -> message;
-
     $rName = $rPost -> name;
-    $rMessage = $rPost -> message;
+    $rAvatar  = getImgUrl($rPost['avatar']);
+    $rImg     = getImgUrl($rPost['media'][0]);
+    $pAvatar  = getImgUrl($pPost['avatar']);
+    $pImg     = getImgUrl($pPost['media'][0]);
+    $pMessage = empty($pPost['media']) ? $pPost['message'] : "<img src='{$parentImg}' style='max-height: 80px;'>";;
+    $rMessage = empty($rPost['media']) ? $rPost['message'] : "<img src='{$img}' style='max-height: 80px;'>";
 
-    $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的评论：</p>';
-    $content .= $pMessage;
-    $content .= '<p>' . $rName . ' 的回复如下：</p>';
-    $content .= $rMessage;
-    $content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$threadLink.'?#comment-'.$pId.'">'. $threadTitle . '</a></p>';
+    // 内容
+    $content = file_get_contents(__DIR__.'/PHPMailer/template.html');
+    $fields = array('rAvatar', 'pAvatar', 'rName', 'pName', 'rMessage', 'pMessage', 'pEmail', 'forumUrl', 'forumName', 'date');
+    foreach ($fields as $field) {
+        $content = str_replace('{{'.$field.'}}', $$field, $content);
+    }
+    if (empty($content)) {
+        return false;
+    }
+
+
+    // $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的评论：</p>';
+    // $content .= $pMessage;
+    // $content .= '<p>' . $rName . ' 的回复如下：</p>';
+    // $content .= $rMessage;
+    // $content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$threadLink.'?#comment-'.$pId.'">'. $threadTitle . '</a></p>';
 
     $mail          = new PHPMailer();
     $mail->CharSet = "UTF-8"; 
@@ -64,6 +79,13 @@ function sendEmail($thread, $pPost, $rPost, $pEmail){
     $mail->Port       = SMTP_PORT;
     $mail->Username   = SMTP_USERNAME;
     $mail->Password   = SMTP_PASSWORD;
+    $mail->SMTPOptions = array(
+        'ssl' => array(
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        )
+    );
     $mail->Subject = '您在「' . $forumName . '」的评论有了新回复';
     $mail->MsgHTML($content);
     $mail->AddAddress($pEmail, $pName);
