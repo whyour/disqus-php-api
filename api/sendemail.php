@@ -50,8 +50,8 @@ function sendEmail($thread, $pPost, $rPost, $pEmail){
     $rImg     = getImgUrl($rPost['media'][0]);
     $pAvatar  = getImgUrl($pPost['avatar']);
     $pImg     = getImgUrl($pPost['media'][0]);
-    $pMessage = empty($pPost['media']) ? $pPost['message'] : "<img src='{$parentImg}' style='max-height: 80px;'>";;
-    $rMessage = empty($rPost['media']) ? $rPost['message'] : "<img src='{$img}' style='max-height: 80px;'>";
+    $pMessage = empty($pPost['media']) ? $pPost['message'] : "<img src='{$pImg}' style='max-height: 80px;'>";;
+    $rMessage = empty($rPost['media']) ? $rPost['message'] : "<img src='{$rImg}' style='max-height: 80px;'>";
 
     // 内容
     $content = file_get_contents(__DIR__.'/PHPMailer/template.html');

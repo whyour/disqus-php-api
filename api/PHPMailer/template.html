@@ -33,7 +33,7 @@
                             <a href="https://disqus.com/home/account/?utm_medium=email" class="settings-avatar"
                                style="color: #49B3F5; text-decoration: none">
                                 <img class="avatar"
-                                     src="{{parentAvatar}}"
+                                     src="{{pAvatar}}"
                                      title="My account" width="24" height="24"
                                      style="height: auto; outline: none; text-decoration: none; display: block; max-width: 100%; border: none; border-radius: 2px"/>
                             </a>
@@ -65,8 +65,8 @@
                             <h3 class="doc-header"
                                 style='font-weight: 300; font-size: 18px; margin-top: 0; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; line-height: 1.1; letter-spacing: -0.045em; color: #5a6267; margin: 0'>
                                 A new comment was posted on <a
-                                    href="{{url}}"
-                                    class="comment-footer" style="color: #49B3F5; text-decoration: none">{{title}}</a>
+                                    href="{{forumUrl}}"
+                                    class="comment-footer" style="color: #49B3F5; text-decoration: none">{{forumName}}</a>
                             </h3>
                         </td>
                     </tr>
@@ -84,7 +84,7 @@
                                         <td width="65" class="avatar"
                                             style='border-collapse: collapse; color: #353a3d; font-size: 14px; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; border-radius: 2px; vertical-align: top; padding-top: 4px'>
                                             <img class="avatar"
-                                                 src="{{avatar}}"
+                                                 src="{{rAvatar}}"
                                                  width="50" height="50"
                                                  style="height: auto; outline: none; text-decoration: none; display: block; max-width: 100%; border-radius: 2px; margin-right: 10px"/>
                                         </td>
@@ -99,10 +99,10 @@
                                                 <hr style="border: none; height: 1px; overflow: hidden; background: #ffe8cf; margin: 0; margin-top: 12px; margin-bottom: 15px"/>
                                                 <h4 class="comment-author"
                                                     style='font-weight: 600; font-size: 16px; margin-top: 0; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; line-height: 1.1; letter-spacing: -0.045em; color: #5a6267; margin-bottom: 8px'>
-                                                    {{name}}:
+                                                    {{rName}}:
                                                 </h4>
                                                 <p style='margin-bottom: 6px; color: #353a3d; font-size: 14px; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; margin-top: 0'>
-                                                    {{message}}</p>
+                                                    {{rMessage}}</p>
                                                 <p class="helper small"
                                                    style='margin-bottom: 6px; color: #849097; font-size: 85%; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; margin-top: 0'>
                                                     <a href="#"
@@ -134,11 +134,11 @@
                                     <tr style="border-collapse: collapse">
                                         <td colspan="2" class="helper"
                                             style='border-collapse: collapse; color: #849097; font-size: 85%; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; margin: 0'>
-                                            {{name}}&rsquo;s comment is in reply to
+                                            {{rName}}&rsquo;s comment is in reply to
 
                                             <a href="#"
-                                               title="Visit {{parentAvatar}}'s profile" class="user"
-                                               style="color: #353a3d; text-decoration: none"><strong>{{parentName}}</strong></a>:
+                                               title="Visit {{pAvatar}}'s profile" class="user"
+                                               style="color: #353a3d; text-decoration: none"><strong>{{pName}}</strong></a>:
 
                                         </td>
                                     </tr>
@@ -151,21 +151,21 @@
                                     <tr style="border-collapse: collapse">
                                         <td width="38" class="avatar"
                                             style='border-collapse: collapse; color: #353a3d; font-size: 14px; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; border-radius: 2px; vertical-align: top; padding-top: 4px'>
-                                            <a href="{{postUrl}}"
+                                            <a href="{{pEmail}}"
                                                style="color: #49B3F5; text-decoration: none">
                                                 <img class="avatar"
-                                                     src="{{parentAvatar}}"
-                                                     title="Visit {{parentAvatar}}'s profile" width="28" height="28"
+                                                     src="{{pAvatar}}"
+                                                     title="Visit {{pAvatar}}'s profile" width="28" height="28"
                                                      style="height: auto; outline: none; text-decoration: none; display: block; max-width: 100%; border: none; border-radius: 2px; margin-right: 10px"/>
                                             </a>
                                         </td>
                                         <td class="comment-container"
                                             style='border-collapse: collapse; color: #353a3d; font-size: 14px; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; padding-bottom: 9px'>
                                             <p style='margin-bottom: 6px; color: #353a3d; font-size: 85%; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; margin-top: 0; margin: 0'>
-                                                {{parentMessage}}</p>
+                                                {{pMessage}}</p>
                                             <p class="small"
                                                style='margin-bottom: 6px; color: #849097; font-size: 85%; font-weight: 400; word-wrap: break-word; line-height: 1.4; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; margin-top: 0; margin: 0'>
-                                                <a href="{{postUrl}}"
+                                                <a href="{{pEmail}}"
                                                    style="color: #49B3F5; text-decoration: none">Read more</a></p>
                                         </td>
                                     </tr>
