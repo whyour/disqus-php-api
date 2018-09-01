@@ -55,7 +55,7 @@ function sendEmail($thread, $pPost, $rPost, $pEmail){
 
     // 内容
     $content = file_get_contents(__DIR__.'/PHPMailer/template.html');
-    $fields = array('rAvatar', 'pAvatar', 'rName', 'pName', 'rMessage', 'pMessage', 'pEmail', 'forumUrl', 'forumName', 'date');
+    $fields = array('rAvatar', 'pAvatar', 'rName', 'pName', 'rMessage', 'pMessage', 'threadLink', 'forumUrl', 'forumName', 'date');
     foreach ($fields as $field) {
         $content = str_replace('{{'.$field.'}}', $$field, $content);
     }
