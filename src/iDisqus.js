@@ -3,7 +3,7 @@
  * @author fooleap
  * @email fooleap@gmail.com
  * @create 2017-06-17 20:48:25
- * @update 2018-08-31 20:50:25
+ * @update 2018-09-01 04:26:14
  * @version 0.2.17
  * Copyright 2017-2018 fooleap
  * Released under the MIT license
