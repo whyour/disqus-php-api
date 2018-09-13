@@ -667,8 +667,9 @@ require('./iDisqus.scss');
                             '<div class="related-item-post">'+
                             '<div class="related-item-avatar"><img src="'+item.topPost.avatar+'" /></div>'+
                             '<div class="related-item-main">'+
-                            '<div class="related-item-name">'+item.topPost.name+'</div>'+
-                            '<div class="related-item-message">'+item.topPost.raw_message+'</div>'+
+                            '<span class="related-item-name">' + item.topPost.name + '</span>' +
+                            '—'+
+                            '<span class="related-item-message">'+item.topPost.raw_message+'</span>'+
                             '</div>'+
                             '</div></a>'+
                             '</li>';
