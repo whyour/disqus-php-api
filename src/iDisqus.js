@@ -658,7 +658,10 @@ require('./iDisqus.scss');
                     var threads = data.response;
                     var popHtml = '';
                     threads.forEach(function(item){
-                        item.topPost.raw_message = item.topPost.raw_message.replace(/(\@\w+):disqus/,'$1');
+                        item.topPost.raw_message = item.topPost.raw_message.replace(/(\@\w+):disqus/, '$1');
+                        if (item.topPost.raw_message.length >= 30) {
+                            item.topPost.raw_message = item.topPost.raw_message.substring(0, 28) + '...';                             
+                        }
                         popHtml += '<li class="related-item">'+
                             '<a class="related-item-link" href="' + item.link  + '" title="' + item.title + '">'+
                             '<div class="related-item-title">' + item.title + '</div>'+
