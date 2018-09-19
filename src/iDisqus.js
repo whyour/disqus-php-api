@@ -709,19 +709,26 @@ require('./iDisqus.scss');
                         if (item.topPost.raw_message.length >= 30) {
                             item.topPost.raw_message = item.topPost.raw_message.substring(0, 28) + '...';                             
                         }
-                        popHtml += `<li class="related-item">`+
-                            `<a class="related-item-link" href="${item.link}" title="${item.title}">`+
-                            `<div class="related-item-title">${item.title}</div>`+
-                            `<div class="related-item-desc">${item.posts}条评论<span class="related-item-bullet"> • </span><time class="related-item-time" datetime="${item.createdAt}"></time></div></a>`+
-                            `<a class="related-item-link" href="${item.link}?#comment-${item.topPost.id}" title="${item.topPost.raw_message}">`+
-                            `<div class="related-item-post">`+
-                            `<div class="related-item-avatar"><img src="${item.topPost.avatar}" /></div>`+
-                            `<div class="related-item-main">`+
-                            `<div class="related-item-name">${item.topPost.name}</div>`+
-                            `<div class="related-item-message">${item.topPost.raw_message}</div>`+
-                            `</div>`+
-                            `</div></a>`+
-                            `</li>`;
+                        popHtml += `
+                            <li class="related-item">
+                                <a class="related-item-link" href="${item.link}" title="${item.title}">
+                                    <div class="related-item-title">${item.title}</div>
+                                    <div class="related-item-desc">${item.posts}条评论<span class="related-item-bullet"> • </span>
+                                        <time class="related-item-time" datetime="${item.createdAt}"></time>
+                                    </div>
+                                </a>
+                                <a class="related-item-link" href="${item.link}?#comment-${item.topPost.id}" title="${item.topPost.raw_message}">
+                                    <div class="related-item-post">
+                                        <div class="related-item-avatar">
+                                            <img src="${item.topPost.avatar}" />
+                                        </div>
+                                        <div class="related-item-main">
+                                            <span class="related-item-name">${item.topPost.name}</span>
+                                            <span class="related-item-message">${item.topPost.raw_message}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>`;
                     });
                     popHtml = `<div class="comment-related-title">在<span class="comment-related-forumname">${_.forum.name}</span>上还有</div><div class="comment-related-content"><ul class="related-list">${popHtml}</ul></div>`;
                     _.dom.querySelector('.comment-related').innerHTML = popHtml;
