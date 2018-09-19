@@ -724,7 +724,7 @@ require('./iDisqus.scss');
                                         </div>
                                         <div class="related-item-main">
                                             <span class="related-item-name">${item.topPost.name}</span>
-                                             - 
+                                             — 
                                             <span class="related-item-message">${item.topPost.raw_message}</span>
                                         </div>
                                     </div>
