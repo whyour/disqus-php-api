@@ -3,7 +3,7 @@
  * 获取权限，简单封装常用函数
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-09-19 09:56:41
+ * @version  2018-09-20 13:38:54
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -201,7 +201,7 @@ function fields_format($fields){
     return $fields_string;
 }
 
-function curl_get($url, $fields){
+function curl_get($url, $fields = array()){
 
     global $cache;
 
@@ -314,7 +314,7 @@ function thread_format( $thread ){
 
 function media_format( $media ){
     if( $media -> html == '' ){
-        $media -> html = '<a class="comment-item-image" href="'.$media -> url.'" target="_blank" rel="nofollow" title="'.$media -> title.'" ><img src="https:'. $media -> thumbnailUrl .'" /></a>';
+        $media -> html = '<div class="comment-item-image"><a href="'.$media -> url.'" target="_blank" rel="nofollow" title="'.$media -> title.'" ><img src="https:'. $media -> thumbnailUrl .'" /></a></div>';
     }
     return $media;
 }
@@ -363,7 +363,7 @@ function post_format( $post ){
     if( preg_match_all($urlPat, $post -> message, $urlMatches) ){
         $urlMatches[1] = array_map('realUrl', $urlMatches[1]);
         $mediaUrl = array_filter(array_column($post -> media, 'url'), function($var) {
-            return $var != 'http://disqus.com' && $var != 'https://disqus.com' && $var != 'https://www.google.com';
+            return preg_match('/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})\/?$/i', $var) == false;
         });
         foreach( $urlMatches[0] as $key => $item ){
             $imgKey = array_search($urlMatches[1][$key], $mediaUrl );
@@ -384,9 +384,10 @@ function post_format( $post ){
     // 是否已删除
     if(!!$post -> isDeleted){
         $post -> message = '';
+        $post -> raw_message = '';
         $author -> avatar -> cache =  $avatar;
         $author -> username = '';
-        $author -> name = '';
+        $author -> name = 'Guest';
         $author -> url = '';
         $isMod = '';
     }
@@ -437,6 +438,7 @@ class Forum {
     public $name;
     public $url;
     public $id;
+    public $pk;
     public $avatar;
     public $moderatorBadgeText;
     public $settings;
@@ -454,6 +456,7 @@ class Forum {
         $forum->name = $oForum -> name;
         $forum->url = $oForum -> url;
         $forum->id = $oForum -> id;
+        $forum->pk = $oForum -> pk;
         $forum->avatar = substr($avatar, 0, 2) === '//' ? 'https:'.$avatar : $avatar;
         $forum->settings = $oForum -> settings;
         return $forum;
