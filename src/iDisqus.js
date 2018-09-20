@@ -793,13 +793,13 @@ require('./iDisqus.scss');
                         loadmore.classList.add('hide');
                     }
 
-                    if (posts.length == 0) {
-                        return;
-                    }
-
                     _.loadRelated();
                     _.loadReactions();
                     _.timeAgo();
+                    
+                    if (posts.length == 0) {
+                        return;
+                    }
 
                     var iframe =_.dom.querySelectorAll('.comment-item-body iframe');
                     [].forEach.call(iframe, function(item){
