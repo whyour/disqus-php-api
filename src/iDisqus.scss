@@ -296,8 +296,8 @@
 }
 
 .comment-actions {
-    background: #f6f8f9;
-    border-radius: 0 0 2px 2px;
+    background: #fefefe;
+    border-radius: 0 0 4px 4px;
     display: flex;
     justify-content: space-between;
     height: 0;
@@ -469,7 +469,6 @@
         }
         .comment-actions {
             transition: all 0.2s ease-in-out;
-            border-top: solid 1px rgb(219, 223, 228);
             opacity: 1;
             height: 36px;
             filter: alpha(opacity=100);
@@ -550,7 +549,7 @@
         border: none;
         font-size: 18px;
         line-height: 30px;
-        border-radius: 4px;
+        border-radius: 4px 4px 0 0;
         color: rgb(42, 46, 46);
         cursor: text;
         resize: none;
