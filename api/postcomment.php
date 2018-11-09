@@ -8,9 +8,10 @@
  * @param name    访客名字
  * @param email   访客邮箱
  * @param url     访客网址，可为空
+ * @param unique  匿名用户 unique
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-09-20 13:39:20
+ * @version  2018-09-22 13:58:14
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -18,7 +19,7 @@ require_once('init.php');
 require_once('sendemail.php');
 
 $authorName = $_POST['name'];
-$authorEmail = $_POST['email'];
+$authorEmail = strtolower($_POST['email']);
 $authorUrl = $_POST['url'] == '' || $_POST['url'] == 'null' ? null : $_POST['url'];
 $threadId = $_POST['thread'];
 $parent = $_POST['parent'];
@@ -112,6 +113,15 @@ if( isset($access_token) ){
 $data = curl_post($curl_url, $post_data);
 
 if( $data -> code == 0 ){
+
+    // 匿名用户暂存邮箱号
+    if( !isset($access_token) ){
+        $authors = $cache -> get('authors');
+        $uid = md5($authorName.email_format($authorEmail));
+        $authors -> $uid = $authorEmail;
+        $cache -> update($authors, 'authors');
+    }
+
     $rPost = post_format($data->response);
 
     $output = array(
@@ -132,15 +142,6 @@ if( $data -> code == 0 ){
     } else {
         $output['verifyCode'] = $pAuthor->isAnonymous ? $pUid : time();
         print_r(json_encode($output));
-    }
-
-
-    // 匿名用户暂存邮箱号
-    if( !isset($access_token) ){
-        $authors = $cache -> get('authors');
-        $uid = md5($authorName.email_format($authorEmail));
-        $authors -> $uid = $authorEmail;
-        $cache -> update($authors, 'authors');
     }
 
 } else {

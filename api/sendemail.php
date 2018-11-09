@@ -7,7 +7,7 @@
  * @param post    当前评论信息
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-09-20 13:54:26
+ * @version  2018-09-20 16:08:21
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -154,6 +154,41 @@ function sendModEmail($thread, $pPost, $rPost) {
     $rName = $rPost -> name;
     $rMessage = $rPost -> message;
 
+    $title = '您在「' . $forumName . '」的留言有了新回复';
+    $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的留言：</p>';
+    $content .= $pMessage;
+    $content .= '<p>' . $rName . '  的回复如下：</p>';
+    $content .= $rMessage;
+    $content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$threadLink.'?#comment-'.$pId.'">'. $threadTitle . '</a></p>';
+    $fromName = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forumName;
+    sendEmail($title, $content, $pEmail, $pName, $fromName);
+}
+
+// 管理员的留言通知
+function sendModEmail($thread, $pPost, $rPost) {
+    global $cache;
+
+    $forum = $cache -> get('forum');
+    $forumName = $forum -> name;
+    $forumUrl = $forum -> url;
+    $forumPk = $forum -> pk;
+
+    $data = curl_get('/users/self/moderation/');
+    if( $data -> forum_subscriptions -> $forumPk -> subscribed || $rPost -> username == DISQUS_USERNAME || $rPost -> name == DISQUS_USERNAME){
+        return;
+    }
+
+    $threadTitle = $thread -> title;
+    $threadLink = $thread -> link;
+
+    $pId = $pPost -> id;
+    $pName = $pPost -> name;
+    $pMessage = $pPost -> message;
+
+    $rId = $rPost -> id;
+    $rName = $rPost -> name;
+    $rMessage = $rPost -> message;
+
     $title = '您的站点「' . $forumName . '」有了新留言';
     $content = '<p>您的站点<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>有了 ' . $rName . ' 的新留言：</p>';
     $content .= $rMessage;
@@ -199,8 +234,10 @@ function sendEmail($title, $content, $email, $name, $fromName){
     $mail->MsgHTML($content);
     $mail->AddAddress($email, $name);
     $from = defined('SMTP_FROM') ? SMTP_FROM : SMTP_USERNAME;
-    $mail->SetFrom($from, $fromName);
-    $mail->SMTPDebug = 4;
+    $mail->From = $from;
+    $mail->FromName = $fromName;
+    //$mail->SetFrom($from, $fromName);
+    $mail->SMTPDebug = 2;
     $mail->Debugoutput = function($str, $level) {
         $GLOBALS['debug'] .= "$level: $str\n";
     };
