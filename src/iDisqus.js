@@ -810,7 +810,7 @@ require('./iDisqus.scss');
         }
         getAjax( _.opts.api + '/threadReactionsLoadReations.php' + '?thread=' + _.stat.thread.id, function(resp) {
             var data  = JSON.parse(resp);
-            if( data.response.eligible ){
+            if( data.response.eligible && data.response.reactions && data.response.reactions.length > 0){
                 _.dom.querySelector('.comment-reaction-prompt').innerHTML = data.response.prompt;
                 var reactions = data.response.reactions;
                 var total = 0;
