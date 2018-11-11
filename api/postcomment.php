@@ -17,7 +17,6 @@
  */
 require_once('init.php');
 require_once('sendemail.php');
-
 $authorName = $_POST['name'];
 $authorEmail = strtolower($_POST['email']);
 $authorUrl = $_POST['url'] == '' || $_POST['url'] == 'null' ? null : $_POST['url'];
@@ -26,7 +25,6 @@ $parent = $_POST['parent'];
 $authors = $cache -> get('authors');
 $approved = DISQUS_APPROVED == 1 ? 'approved' : null;
 $pPost = null;
-
 // 黑名单
 if(DISQUS_BLACKLIST == 1){
     $fields = (object) array(
@@ -45,7 +43,6 @@ if(DISQUS_BLACKLIST == 1){
         exit(0);
     }
 }
-
 // 文章信息
 $fields = (object) array(
     'thread' => $threadId
@@ -53,18 +50,8 @@ $fields = (object) array(
 $curl_url = '/api/3.0/threads/details.json?';
 $data = curl_get($curl_url, $fields);
 $thread = thread_format($data -> response);
-
-$fields = (object) array(
-    'forum' => DISQUS_SHORTNAME,
-    'thread' => $threadId
-);
-$curl_url = '/api/3.0/threads/details.json?';
-$data = curl_get($curl_url, $fields);
-$thread = thread_format($data -> response); // 文章信息
-
 // 存在父评，即回复
 if(!empty($parent)){
-
     $fields = (object) array(
         'post' => $parent,
     );
@@ -80,22 +67,17 @@ if(!empty($parent)){
     $pEmail = $authors -> $pUid; // 被回复邮箱
     $pPost = post_format($data->response);
 }
-
 $curl_url = '/api/3.0/posts/create.json';
 $postMessage = $emoji->toUnicode($_POST['message']);
-
 // 已登录
 if( isset($access_token) ){
-
     $post_data = (object) array(
         'thread' => $threadId,
         'parent' => $parent,
         'message' => $postMessage,
         'ip_address' => get_ip()
     );
-
 } else {
-
     $post_data = (object) array(
         'thread' => $threadId,
         'parent' => $parent,
@@ -104,16 +86,12 @@ if( isset($access_token) ){
         'author_email' => $authorEmail,
         'author_url' => $authorUrl
     );
-
     if(!!$cache -> get('cookie')){
         $post_data -> state = $approved;
     }
 }
-
 $data = curl_post($curl_url, $post_data);
-
 if( $data -> code == 0 ){
-
     // 匿名用户暂存邮箱号
     if( !isset($access_token) ){
         $authors = $cache -> get('authors');
@@ -121,16 +99,13 @@ if( $data -> code == 0 ){
         $authors -> $uid = $authorEmail;
         $cache -> update($authors, 'authors');
     }
-
     $rPost = post_format($data->response);
-
     $output = array(
         'code' => $data -> code,
         'thread' => $thread,
         'parent' => $pPost,
         'response' => $rPost
     );
-
     if( function_exists('fastcgi_finish_request') ){
         print_r(json_encode($output));
         fastcgi_finish_request();
@@ -143,11 +118,8 @@ if( $data -> code == 0 ){
         $output['verifyCode'] = $pAuthor->isAnonymous ? $pUid : time();
         print_r(json_encode($output));
     }
-
 } else {
-
     $output = $data;
     print_r(json_encode($output));
-
 }
 

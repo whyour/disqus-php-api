@@ -264,7 +264,7 @@
 
 .comment-form {
     display: flex;
-    flex-direction: column;
+    // flex-direction: column;
     width: calc(100% - 60px);
 }
 .comment-item-child {
@@ -483,9 +483,9 @@
         }
     }
     &.focus {
-        border: 1px solid #c2c6cc;
+        // border: 1px solid #c2c6cc;
         .comment-actions {
-            border-top: 2px solid #c2c6cc;
+            // border-top: 2px solid #c2c6cc;
         }
         .comment-actions-label{
             .icon {
@@ -590,7 +590,7 @@
         opacity: 0;
         white-space: nowrap;
         border-radius: 4px;
-        height: 38px;
+        height: 36px;
         width: 80px;
         display: inline-block;
         background-color: rgba(29, 47, 58, .6);

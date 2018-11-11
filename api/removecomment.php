@@ -11,16 +11,13 @@
  */
 date_default_timezone_set('UTC');
 require_once('init.php');
-
 $fields = (object) array(
     'post' => $_POST['id']
 );
 $curl_url = '/api/3.0/posts/details.json?';
 $data = curl_get($curl_url, $fields);
 $duration = time() - strtotime($data->response->createdAt);
-
 $output = array();
-
 if($data->code !== 0){
     $output = array( 
         'code' => 2,
@@ -29,7 +26,6 @@ if($data->code !== 0){
     print_r(json_encode($output));
     return;
 }
-
 if( $data->response->isDeleted ){
     // 已删除
     $output = array( 
@@ -54,7 +50,6 @@ if( $data->response->isDeleted ){
                 'message' => '删除成功'
             )
         );
-
     } else {
         // 十分钟外
         $output = array( 
@@ -66,8 +61,4 @@ if( $data->response->isDeleted ){
         );
     }
 }
-
 print_r(json_encode($output));
-
-fastcgi_finish_request();
-updateThreadData("ident:{$_POST['identifier']}");

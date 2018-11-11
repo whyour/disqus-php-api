@@ -15,24 +15,19 @@ date_default_timezone_set("Asia/Shanghai");
 require_once('init.php');
 require_once('PHPMailer/class.phpmailer.php');
 require_once('PHPMailer/class.smtp.php');
-
 $authors = $cache -> get('authors');
 $code = $_POST['code'];
 $thread = $_POST['thread'];
 $rPost = $_POST['post'];
 $pPost = $_POST['parent'];
 $id = $_POST['id'];
-
 if(!empty($id)){
-
     if( function_exists('fastcgi_finish_request') ){
         fastcgi_finish_request();
     }
-
     if( function_exists('sleep') ){
         sleep(10);
     }
-
     $fields = (object) array(
         'post' => $id,
     );
@@ -47,7 +42,6 @@ if(!empty($id)){
     $data = curl_get($curl_url, $fields);
     $thread = thread_format($data -> response); // 文章信息
     $pPost = null;
-
     if( isset($rPost -> parent) ){
         $fields = (object) array(
             'post' => $rPost -> parent,
@@ -56,7 +50,6 @@ if(!empty($id)){
         $data = curl_get($curl_url, $fields);
         $pPost = post_format($data->response); // 被回复评论
         $pAuthor = $data->response->author;
-
         $pUid = md5($pAuthor->name.$pAuthor->email);
         if( $pAuthor->isAnonymous && strtotime($rPost -> createdAt) - time() < 600){
             $pEmail = $authors -> $pUid; // 被回复邮箱
@@ -66,10 +59,8 @@ if(!empty($id)){
     sendModEmail($thread, $pPost, $rPost);
     exit(0);
 }
-
 // 异步发邮件
 if(!empty($code)){
-
     $thread  = json_decode($thread);
     $rPost = json_decode($rPost);
     $pPost = !empty($pPost) ? json_decode($pPost) : null;
@@ -78,47 +69,23 @@ if(!empty($code)){
     sendModEmail($thread, $pPost, $rPost);
     exit(0);
 }
-
 $debug = '';
 // 匿名评论的回复通知
 function sendAnonEmail($thread, $pPost, $rPost, $pEmail){
     global $cache;
-
     if(isset($pEmail) == false ){
         return;
     }
     $forum = $cache -> get('forum');
     $forumName = $forum -> name;
     $forumUrl = $forum -> url;
-
     $threadTitle = $thread -> title;
     $threadLink = $thread -> link;
-
     $pId = $pPost -> id;
     $pName = $pPost -> name;
+    $pMessage = $pPost -> message;
     $rName = $rPost -> name;
-    $rMessage  = $rPost -> message;
-	$pMessage = $pPost -> message;
-
-
-	//$rAvatar  = getImgUrl($rPost['avatar']);
-	//$rImg     = getImgUrl($rPost['media'][0]);
-	//$rMessage = empty($post['media']) ? $rPost['message'] : "<img src='{$rImg}' style='max-height: 80px;'>";
-	//$pAvatar  = getImgUrl($pPost['avatar']);
-	//$pImg     = getImgUrl($pPost['media'][0]);
-	//$pMessage = empty($pPost['media']) ? $pPost['message'] : "<img src='{$pImg}' style='max-height: 80px;'>";
-
-	//$rAvatar  = $rPost -> avatar;
-	//$pAvatar  = $pPost -> avatar;
-	//$content = file_get_contents(__DIR__.'/PHPMailer/template.html');
-	//$fields = array('rAvatar', 'pAvatar', 'rName', 'pName', 'rMessage', 'pMessage', 'threadLink', 'forumUrl', 'forumName', 'date');
-	//foreach ($fields as $field) {
-	//$content = str_replace('{{'.$field.'}}', $$field, $content);
-	//}
-	//if (empty($content)) {
-	//return false;
-	//}
-
+    $rMessage = $rPost -> message;
     $title = '您在「' . $forumName . '」的留言有了新回复';
     $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的留言：</p>';
     $content .= $pMessage;
@@ -128,67 +95,25 @@ function sendAnonEmail($thread, $pPost, $rPost, $pEmail){
     $fromName = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forumName;
     sendEmail($title, $content, $pEmail, $pName, $fromName);
 }
-
 // 管理员的留言通知
 function sendModEmail($thread, $pPost, $rPost) {
     global $cache;
-
     $forum = $cache -> get('forum');
     $forumName = $forum -> name;
     $forumUrl = $forum -> url;
     $forumPk = $forum -> pk;
-
     $data = curl_get('/users/self/moderation/');
     if( $data -> forum_subscriptions -> $forumPk -> subscribed || $rPost -> username == DISQUS_USERNAME || $rPost -> name == DISQUS_USERNAME){
         return;
     }
-
     $threadTitle = $thread -> title;
     $threadLink = $thread -> link;
-
     $pId = $pPost -> id;
     $pName = $pPost -> name;
     $pMessage = $pPost -> message;
-
     $rId = $rPost -> id;
     $rName = $rPost -> name;
     $rMessage = $rPost -> message;
-
-    $title = '您在「' . $forumName . '」的留言有了新回复';
-    $content = '<p>' . $pName . '，您在<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>的留言：</p>';
-    $content .= $pMessage;
-    $content .= '<p>' . $rName . '  的回复如下：</p>';
-    $content .= $rMessage;
-    $content .= '<p>查看详情及回复请点击：<a target="_blank" href="'.$threadLink.'?#comment-'.$pId.'">'. $threadTitle . '</a></p>';
-    $fromName = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forumName;
-    sendEmail($title, $content, $pEmail, $pName, $fromName);
-}
-
-// 管理员的留言通知
-function sendModEmail($thread, $pPost, $rPost) {
-    global $cache;
-
-    $forum = $cache -> get('forum');
-    $forumName = $forum -> name;
-    $forumUrl = $forum -> url;
-    $forumPk = $forum -> pk;
-
-    $data = curl_get('/users/self/moderation/');
-    if( $data -> forum_subscriptions -> $forumPk -> subscribed || $rPost -> username == DISQUS_USERNAME || $rPost -> name == DISQUS_USERNAME){
-        return;
-    }
-
-    $threadTitle = $thread -> title;
-    $threadLink = $thread -> link;
-
-    $pId = $pPost -> id;
-    $pName = $pPost -> name;
-    $pMessage = $pPost -> message;
-
-    $rId = $rPost -> id;
-    $rName = $rPost -> name;
-    $rMessage = $rPost -> message;
-
     $title = '您的站点「' . $forumName . '」有了新留言';
     $content = '<p>您的站点<a target="_blank" href="'.$forumUrl.'">「'. $forumName .'」</a>有了 ' . $rName . ' 的新留言：</p>';
     $content .= $rMessage;
@@ -200,7 +125,6 @@ function sendModEmail($thread, $pPost, $rPost) {
     $fromName = defined('SMTP_FROMNAME') ? SMTP_FROMNAME : $forumName;
     sendEmail($title, $content, DISQUS_EMAIL, DISQUS_USERNAME, $fromName);
 }
-
 function sendEmail($title, $content, $email, $name, $fromName){
     $mail          = new PHPMailer();
     $mail->CharSet = "UTF-8"; 
