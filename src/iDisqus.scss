@@ -264,7 +264,7 @@
 
 .comment-form {
     display: flex;
-    // flex-direction: column;
+    flex-direction: column;
     width: calc(100% - 60px);
 }
 .comment-item-child {
