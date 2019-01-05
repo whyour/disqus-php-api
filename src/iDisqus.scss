@@ -693,6 +693,7 @@
     width: 30px; 
     line-height: 32px;
     flex: auto;
+    margin-left: 5px;
     &::-webkit-input-placeholder {
         color: #7f919e;
     }
@@ -704,6 +705,9 @@
     }
     &[disabled] {
         color: #656c7a;
+    }
+    &:first-child {
+      margin-left: 0;
     }
 }
 
