@@ -776,7 +776,7 @@ require('./iDisqus.scss');
                     var threads = data.response;
                     var popHtml = '';
                     threads.forEach(function(item){
-                        var message = item.topPost.message.replace(/<[^>]*>/g, '');
+                        var message = item.topPost.raw_message;
                         popHtml += `<li class="related-item">
                         <a class="related-item-link" href="${item.link}" title="${item.title}">
                         <div class="related-item-title">${item.title}</div>
