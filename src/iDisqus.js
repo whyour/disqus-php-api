@@ -1271,7 +1271,7 @@ require('./iDisqus.scss');
         if( box ){
             var $show = box.closest('.comment-item');
             var cancel = $show.querySelector('.comment-item-cancel')
-            cancel.outerHTML = cancel.outerHTML.replace('cancel','reply');
+            // cancel.outerHTML = cancel.outerHTML.replace('cancel','reply');
             cancel.outerHTML = cancel.outerHTML.replace('取消','回复');
             setTimeout(function () {
                 box.style.height = '0px';
@@ -1281,7 +1281,7 @@ require('./iDisqus.scss');
 
         // 回复时，显示评论框
         if( $this.className == 'comment-item-reply' ){
-            $this.outerHTML = $this.outerHTML.replace('reply', 'cancel');
+            // $this.outerHTML = $this.outerHTML.replace('reply', 'cancel');
             $this.outerHTML = $this.outerHTML.replace('回复','取消');          
             var commentBox = _.box.replace(/emoji-input/g,'emoji-input-'+item.dataset.id).replace(/upload-input/g,'upload-input-'+item.dataset.id);
             item.querySelector('.comment-item-children').insertAdjacentHTML('beforebegin', commentBox);
