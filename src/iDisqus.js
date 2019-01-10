@@ -1279,7 +1279,11 @@ require('./iDisqus.scss');
         if( $this.className == 'comment-item-reply' ){
             $this.outerHTML = $this.outerHTML.replace('reply','cancel');
             var commentBox = _.box.replace(/emoji-input/g,'emoji-input-'+item.dataset.id).replace(/upload-input/g,'upload-input-'+item.dataset.id);
-            item.querySelector('.comment-item-children').insertAdjacentHTML('beforebegin', commentBox);
+          item.querySelector('.comment-item-children').insertAdjacentHTML('beforebegin', commentBox);
+          item.querySelector('.comment-form-textarea').style.height = '0px';
+          setTimeout(function () {
+            item.querySelector('.comment-form-textarea').style.height = '74px';
+          },20);
             _.user.init();
 
             item.querySelector('.comment-form-textarea').focus();
