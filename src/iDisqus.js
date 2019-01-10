@@ -1270,9 +1270,9 @@ require('./iDisqus.scss');
         var box = _.dom.querySelector('.comment-item .comment-box:not([data-current-id])');
         if( box ){
             var $show = box.closest('.comment-item');
-            var cancel = $show.querySelector('.comment-item-cancel')
-            // cancel.outerHTML = cancel.outerHTML.replace('cancel','reply');
-            cancel.outerHTML = cancel.outerHTML.replace('取消','回复');
+            var cancel = $show.querySelector('.comment-item-cancel');
+            cancel.outerHTML = cancel.outerHTML.replace('cancel','reply').replace('取消', '回复');
+            cancel.className == 'comment-item-reply';
             setTimeout(function () {
                 box.style.height = '0px';
                 box.outerHTML = '';
@@ -1281,8 +1281,8 @@ require('./iDisqus.scss');
 
         // 回复时，显示评论框
         if( $this.className == 'comment-item-reply' ){
-            // $this.outerHTML = $this.outerHTML.replace('reply', 'cancel');
-            $this.outerHTML = $this.outerHTML.replace('回复','取消');          
+            $this.outerHTML = $this.outerHTML.replace('reply', 'cancel').replace('回复', '取消');
+            $this.className == 'comment-item-cancel';
             var commentBox = _.box.replace(/emoji-input/g,'emoji-input-'+item.dataset.id).replace(/upload-input/g,'upload-input-'+item.dataset.id);
             item.querySelector('.comment-item-children').insertAdjacentHTML('beforebegin', commentBox);
             item.querySelector('.comment-form-textarea').style.height = '0px';
