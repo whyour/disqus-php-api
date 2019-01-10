@@ -1273,10 +1273,7 @@ require('./iDisqus.scss');
             var cancel = $show.querySelector('.comment-item-cancel');
             cancel.outerHTML = cancel.outerHTML.replace('cancel','reply').replace('取消', '回复');
             cancel.className == 'comment-item-reply';
-            setTimeout(function () {
-                item.querySelector('.comment-form-textarea').style.height = '0px';
-                box.outerHTML = '';
-            });
+            box.outerHTML = '';
         }
 
         // 回复时，显示评论框
