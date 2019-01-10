@@ -1274,7 +1274,7 @@ require('./iDisqus.scss');
             cancel.outerHTML = cancel.outerHTML.replace('cancel','reply').replace('取消', '回复');
             cancel.className == 'comment-item-reply';
             setTimeout(function () {
-                box.style.height = '0px';
+                item.querySelector('.comment-form-textarea').style.height = '0px';
                 box.outerHTML = '';
             });
         }
