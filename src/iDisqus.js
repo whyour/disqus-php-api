@@ -1272,12 +1272,17 @@ require('./iDisqus.scss');
             var $show = box.closest('.comment-item');
             var cancel = $show.querySelector('.comment-item-cancel')
             cancel.outerHTML = cancel.outerHTML.replace('cancel','reply');
-            box.outerHTML = '';
+            cancel.outerHTML = cancel.outerHTML.replace('取消','回复');
+            setTimeout(function () {
+              box.style.height = '0px';
+              box.outerHTML = '';
+            });
         }
 
         // 回复时，显示评论框
         if( $this.className == 'comment-item-reply' ){
-            $this.outerHTML = $this.outerHTML.replace('reply','cancel');
+          $this.outerHTML = $this.outerHTML.replace('reply', 'cancel');
+          cancel.outerHTML = cancel.outerHTML.replace('回复','取消');          
             var commentBox = _.box.replace(/emoji-input/g,'emoji-input-'+item.dataset.id).replace(/upload-input/g,'upload-input-'+item.dataset.id);
             item.querySelector('.comment-item-children').insertAdjacentHTML('beforebegin', commentBox);
             item.querySelector('.comment-form-textarea').style.height = '0px';
