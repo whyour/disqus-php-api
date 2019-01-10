@@ -266,7 +266,6 @@
     display: flex;
     flex-direction: column;
     width: calc(100% - 60px);
-    // min-height: 110px;
 }
 .comment-item {
     .comment-form {
@@ -529,9 +528,8 @@
             transition: all .5s;
         }
         +.comment-form-user {
-            height: 0;
             opacity: 0;
-            margin-top: -40px;
+            margin-top: -32px;
         }
         .exit {
             display: block;
