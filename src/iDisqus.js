@@ -289,7 +289,7 @@ require('./iDisqus.scss');
         _.opts.relatedType = _.opts.relatedType || 'Related'
 
         // emoji 表情
-        _.opts.emojiPath = _.opts.emojiPath || _.opts.emoji_path || 'https://github.githubassets.com/images/icons/emoji/unicode/';
+        _.opts.emojiPath = _.opts.emojiPath || _.opts.emoji_path || 'https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/';
         _.emojiList = _.opts.emojiList || _.opts.emoji_list || [{
             code:'smile',
             title:'笑脸',
