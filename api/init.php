@@ -3,7 +3,7 @@
  * 获取权限，简单封装常用函数
  *
  * @author   fooleap <fooleap@gmail.com>
- * @version  2018-11-05 07:11:36
+ * @version  2019-04-30 12:57:44
  * @link     https://github.com/fooleap/disqus-php-api
  *
  */
@@ -23,6 +23,18 @@ function domain($url){
 if(preg_match('(localhost|'.$ipRegex.'|'.domain(DISQUS_WEBSITE).')', $origin)){
     header('Access-Control-Allow-Origin: '.$origin);
 }
+if($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+{
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])){
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
+    }
+
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])){
+        header('Access-Control-Allow-Headers: '.$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+    }
+    exit(0);
+}
+
 try {
     $cache = new Cache();
 } catch (Exception $e) {
@@ -53,6 +65,11 @@ if ( isset($user) ){
         }
     }
 }
+
+function jsonEncode($array){
+    return json_encode($array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+}
+
 function adminLogin(){
     global $cache, $login_host;
     $fields = (object) array(
@@ -147,7 +164,16 @@ function get_ip(){
     } else {
         $ip = $_SERVER['REMOTE_ADDR'];
     }
-    return $ip;
+    if(strpos($ip, ':') !== false ){
+      return null;
+    }
+    return preg_regex('/[\d\.]+/', $ip);
+}
+
+function preg_regex($pattern, $str)
+{
+    preg_match($pattern, $str, $matches);
+    return array_pop($matches);
 }
 function encodeURIComponent($str){
     $replacers = [
@@ -345,7 +371,7 @@ function post_format( $post ){
             if( strpos($urlMatches[1][$key], 'disqus.com/by') !== false ){
                 $linkItem = '<a href="'.$urlMatches[1][$key].'" title="'.$urlMatches[2][$key].'" target="_blank" rel="nofollow">@'.$urlMatches[3][$key].'</a>';
             }
-            if( filter_var($urlMatches[1][$key], FILTER_VALIDATE_URL) === false ){
+            if( !parse_url($urlMatches[1][$key]) ){
                 $linkItem = $urlMatches[3][$key];
             }
             if( $imgKey !== false ){
@@ -368,6 +394,7 @@ function post_format( $post ){
         'avatar' => $author -> avatar -> cache,
         'isMod' => $isMod,
         'isDeleted' => $post -> isDeleted,
+        'hasMore' => $post -> hasMore,
         'username' => $author -> username,
         'createdAt' => $post -> createdAt.'+00:00',
         'id' => $post -> id,
@@ -424,6 +451,10 @@ class Forum {
     protected static function isOld($cForum){
         if(!$cForum){
             return true;
+        } else {
+            if($cForum -> id == null){
+              return true;
+            }
         }
         $forum = new self();
         if(count(array_diff_key((array)$forum, (array)$cForum)) != 0){
